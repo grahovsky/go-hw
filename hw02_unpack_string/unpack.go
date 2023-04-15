@@ -9,36 +9,52 @@ import (
 var ErrInvalidString = errors.New("invalid string")
 
 func Unpack(input string) (string, error) {
-	// Place your code here.
 	var bf strings.Builder
+	runes := []rune(reverseString(input))
 
-	for i := 0; i < len([]rune(input))-1; i++ {
-		r := []rune(input)[i]
-		nr := []rune(input)[i+1]
+	i := 0
 
-		if unicode.IsDigit(nr) {
-			if unicode.IsDigit(r) {
-				return "", ErrInvalidString
-			}
-
-			bf.WriteString(strings.Repeat(string(r), int(nr-'0')))
-		} else {
-			if unicode.IsDigit(r) {
-				if i == 0 {
-					return "", ErrInvalidString
-				}
-				if i == len([]rune(input))-2 {
-					bf.WriteString(string(nr))
-				}
-				continue
-			}
-
-			bf.WriteString(string(r))
-
-			if i == len([]rune(input))-2 {
-				bf.WriteString(string(nr))
-			}
+	for {
+		if i > len(runes)-1 {
+			break
 		}
+
+		count := getCount(&i, runes)
+		char := getChar(&i, runes)
+
+		bf.WriteString(strings.Repeat(char, count))
 	}
-	return bf.String(), nil
+
+	return reverseString(bf.String()), nil
+}
+
+func getCount(i *int, runes []rune) (count int) {
+	r := runes[*i]
+	count = 1
+
+	if unicode.IsDigit(r) {
+		count = int(r - '0')
+		*i++
+	}
+
+	return count
+}
+
+func getChar(i *int, runes []rune) (char string) {
+	char = string(runes[*i])
+
+	if unicode.IsDigit(runes[*i]) {
+		char = ""
+	}
+
+	*i++
+
+	return char
+}
+
+func reverseString(str string) (result string) {
+	for _, v := range str {
+		result = string(v) + result
+	}
+	return
 }
