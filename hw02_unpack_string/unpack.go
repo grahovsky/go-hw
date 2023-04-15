@@ -20,6 +20,12 @@ func Unpack(input string) (string, error) {
 		}
 
 		count := getCount(&i, runes)
+
+		// переделать
+		if i > len(runes)-1 || unicode.IsDigit(runes[i]) {
+			return "", ErrInvalidString
+		}
+
 		char := getChar(&i, runes)
 
 		bf.WriteString(strings.Repeat(char, count))
