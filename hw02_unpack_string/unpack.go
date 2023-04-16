@@ -38,7 +38,7 @@ func getCount(i *int, runes []rune) (count int) {
 	r := runes[*i]
 	count = 1
 
-	if unicode.IsDigit(r) {
+	if unicode.IsDigit(r) && string(runes[*i+1]) != "\\" {
 		count = int(r - '0')
 		*i++
 	}
