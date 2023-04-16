@@ -10,7 +10,7 @@ var ErrInvalidString = errors.New("invalid string")
 
 func Unpack(input string) (string, error) {
 	var bf strings.Builder
-	runes := []rune(reverseString(input))
+	runes := []rune(input)
 
 	i := 0
 
@@ -19,26 +19,27 @@ func Unpack(input string) (string, error) {
 			break
 		}
 
-		count := getCount(&i, runes)
-
-		// переделать
-		if i > len(runes)-1 || unicode.IsDigit(runes[i]) {
+		symb, err := getSymb(&i, runes)
+		if err != nil {
 			return "", ErrInvalidString
 		}
+		count := getCount(&i, runes)
 
-		char := getChar(&i, runes)
-
-		bf.WriteString(strings.Repeat(char, count))
+		bf.WriteString(strings.Repeat(symb, count))
 	}
 
-	return reverseString(bf.String()), nil
+	return bf.String(), nil
 }
 
 func getCount(i *int, runes []rune) (count int) {
-	r := runes[*i]
 	count = 1
 
-	if unicode.IsDigit(r) && string(runes[*i+1]) != "\\" {
+	if *i > len(runes)-1 {
+		return count
+	}
+
+	r := runes[*i]
+	if unicode.IsDigit(r) {
 		count = int(r - '0')
 		*i++
 	}
@@ -46,21 +47,21 @@ func getCount(i *int, runes []rune) (count int) {
 	return count
 }
 
-func getChar(i *int, runes []rune) (char string) {
-	char = string(runes[*i])
-
+func getSymb(i *int, runes []rune) (symb string, _ error) {
 	if unicode.IsDigit(runes[*i]) {
-		char = ""
+		return "", ErrInvalidString
 	}
 
-	*i++
-
-	return char
-}
-
-func reverseString(str string) (result string) {
-	for _, v := range str {
-		result = string(v) + result
+	if *i < len(runes)-1 && string(runes[*i]) == "\\" {
+		symb = string(runes[*i+1])
+		if !(symb == "\\" || unicode.IsDigit(runes[*i+1])) {
+			return "", ErrInvalidString
+		}
+		*i += 2
+	} else {
+		symb = string(runes[*i])
+		*i++
 	}
-	return
+
+	return symb, nil
 }
