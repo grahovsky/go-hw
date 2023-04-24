@@ -12,8 +12,19 @@ type Freq struct {
 }
 
 func Top10(input string) []string {
-	prepare := []Freq{}
 	res := []string{}
+	prepare := TopStruct(input)
+
+	for i := 0; i < 10 && i < len(prepare); i++ {
+		res = append(res, prepare[i].Word)
+	}
+
+	return res
+}
+
+func TopStruct(input string) []Freq {
+	prepare := []Freq{}
+
 	validate := make(map[string]struct{})
 
 	f := func(c rune) bool {
@@ -22,7 +33,7 @@ func Top10(input string) []string {
 	words := strings.FieldsFunc(input, f)
 
 	if len(words) == 0 {
-		return res
+		return prepare
 	}
 
 	for _, word := range words {
@@ -45,11 +56,7 @@ func Top10(input string) []string {
 		}
 	})
 
-	for i := 0; i < 10; i++ {
-		res = append(res, prepare[i].Word)
-	}
-
-	return res
+	return prepare
 }
 
 func CountWords(words []string, valid string) (count int) {
