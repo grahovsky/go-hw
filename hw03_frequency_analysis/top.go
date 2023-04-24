@@ -1,7 +1,6 @@
 package hw03frequencyanalysis
 
 import (
-	"regexp"
 	"sort"
 	"strings"
 	"unicode"
@@ -17,10 +16,8 @@ func Top10(input string) []string {
 	res := []string{}
 	validate := make(map[string]struct{})
 
-	// words := strings.Split(input, " ")
-	// words := strings.Fields(input)
 	f := func(c rune) bool {
-		return !unicode.IsLetter(c)
+		return !unicode.IsLetter(c) && c != '-'
 	}
 	words := strings.FieldsFunc(input, f)
 
@@ -34,13 +31,7 @@ func Top10(input string) []string {
 			continue
 		}
 
-		re, err := regexp.Compile(`(?mi)(\s|\.|\,)` + word + `(\s|\.|\,)`)
-		if err != nil {
-			return res
-		}
-		count := re.FindAllString(input, -1)
-
-		prepare = append(prepare, Freq{Word: word, Count: len(count)})
+		prepare = append(prepare, Freq{Word: word, Count: CountWords(words, word)})
 		validate[word] = struct{}{}
 	}
 
@@ -59,4 +50,19 @@ func Top10(input string) []string {
 	}
 
 	return res
+}
+
+func CountWords(words []string, valid string) (count int) {
+	count = 0
+
+	if valid == "-" {
+		return
+	}
+
+	for _, word := range words {
+		if strings.ToLower(word) == valid {
+			count++
+		}
+	}
+	return
 }
