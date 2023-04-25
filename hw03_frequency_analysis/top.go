@@ -11,10 +11,14 @@ type Freq struct {
 	Count int
 }
 
-var re = regexp.MustCompile(`(?m)([\p{L}\d_\-\.])+`)
+// find words.
+// var re = regexp.MustCompile(`(?m)([\p{L}\d_\-\.])+`)
+
+// find delimeter.
+var re = regexp.MustCompile(`(?m)(!|\.|,|\s-|\(|\))*\s+`)
 
 func Top10(input string) []string {
-	res := []string{}
+	res := make([]string, 0, 10)
 
 	prepare := TopStruct(input)
 
@@ -27,24 +31,17 @@ func Top10(input string) []string {
 
 func TopStruct(input string) []Freq {
 	prepare := []Freq{}
-
 	validate := make(map[string]struct{})
 
-	// - так же работает
-	// f := func(c rune) bool {
-	// 	return !unicode.IsLetter(c) && c != '-' && c != '.'
-	// }
-	// words := strings.FieldsFunc(input, f)
-
-	words := re.FindAllString(input, -1)
+	words := re.Split(input, -1)
 
 	if len(words) == 0 {
 		return prepare
 	}
 
 	for _, word := range words {
-		word = strings.ToLower(strings.Trim(word, "."))
-		if _, ok := validate[word]; ok {
+		word = strings.ToLower(word)
+		if _, ok := validate[word]; ok || word == "" {
 			continue
 		}
 
@@ -68,12 +65,8 @@ func TopStruct(input string) []Freq {
 func CountWords(words []string, valid string) (count int) {
 	count = 0
 
-	if valid == "-" || valid == "." {
-		return
-	}
-
 	for _, word := range words {
-		if strings.ToLower(strings.Trim(word, ".")) == valid {
+		if strings.ToLower(word) == valid {
 			count++
 		}
 	}
