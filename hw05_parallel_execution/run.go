@@ -32,11 +32,16 @@ func Run(tasks []Task, n, m int) error {
 	safeCounter := SafeCounter{}
 
 	// create channel
-	jobs := make(chan Task, len(tasks)/2)
+	jobs := make(chan Task, len(tasks))
 
 	// create wait group
 	var wg sync.WaitGroup
 	wg.Add(n)
+
+	// fix m <=0
+	if m <= 0 {
+		m = 0
+	}
 
 	// create workers
 	for i := 1; i <= n; i++ {
