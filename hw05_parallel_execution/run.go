@@ -59,7 +59,9 @@ func Run(tasks []Task, n, m int) error {
 
 	// create jobs for workers
 	for _, t := range tasks {
-		jobs <- t
+		if safeCounter.Get() <= m {
+			jobs <- t
+		}
 	}
 	close(jobs)
 
