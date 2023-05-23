@@ -22,7 +22,6 @@ func Run(tasks []Task, n, m int) error {
 	close(maxErr)
 
 	completeJobsCh := make(chan struct{}, n)
-	doneCh := make(chan struct{})
 
 	for i := 1; i <= n; i++ {
 		go func() {
@@ -45,13 +44,10 @@ func Run(tasks []Task, n, m int) error {
 	}
 	close(jobs)
 
-	go func() {
-		for i := 0; i < n; i++ {
-			<-completeJobsCh
-		}
-		close(doneCh)
-	}()
-	<-doneCh
+	for i := 0; i < n; i++ {
+		<-completeJobsCh
+	}
+	close(completeJobsCh)
 
 	if _, ok := <-maxErr; ok {
 		ErrErrorsLimitExceeded = nil
