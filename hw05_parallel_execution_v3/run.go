@@ -2,7 +2,6 @@ package hw05parallelexecution
 
 import (
 	"errors"
-	"sync"
 )
 
 var ErrErrorsLimitExceeded = errors.New("errors limit exceeded")
@@ -22,19 +21,20 @@ func Run(tasks []Task, n, m int) error {
 	}
 	close(maxErr)
 
-	var wg sync.WaitGroup
-	wg.Add(n)
+	completeJobsCh := make(chan struct{}, n)
+	doneCh := make(chan struct{})
 
 	for i := 1; i <= n; i++ {
 		go func() {
-			defer wg.Done()
 			for fu := range jobs {
 				if fu() != nil {
 					if _, ok := <-maxErr; !ok {
+						completeJobsCh <- struct{}{}
 						return
 					}
 				}
 			}
+			completeJobsCh <- struct{}{}
 		}()
 	}
 
@@ -44,7 +44,14 @@ func Run(tasks []Task, n, m int) error {
 		}
 	}
 	close(jobs)
-	wg.Wait()
+
+	go func() {
+		for i := 0; i < n; i++ {
+			<-completeJobsCh
+		}
+		close(doneCh)
+	}()
+	<-doneCh
 
 	if _, ok := <-maxErr; ok {
 		ErrErrorsLimitExceeded = nil
