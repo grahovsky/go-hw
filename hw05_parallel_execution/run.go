@@ -2,6 +2,7 @@ package hw05parallelexecution
 
 import (
 	"errors"
+	"fmt"
 	"sync"
 )
 
@@ -9,66 +10,45 @@ var ErrErrorsLimitExceeded = errors.New("errors limit exceeded")
 
 type Task func() error
 
-type SafeCounter struct {
-	mu    sync.Mutex
-	value int
-}
-
-func (c *SafeCounter) Inc() {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	c.value++
-}
-
-func (c *SafeCounter) Get() int {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	return c.value
-}
-
 // Run starts tasks in n goroutines and stops its work when receiving m errors from tasks.
 func Run(tasks []Task, n, m int) error {
-	// create safe counter
-	safeCounter := SafeCounter{}
-
-	// create channel
 	jobs := make(chan Task, len(tasks)/2)
 
-	// create wait group
-	var wg sync.WaitGroup
-	wg.Add(n)
-
-	// fix m <=0
 	if m < 0 {
 		m = 0
 	}
+	maxErr := make(chan struct{}, m)
+	for i := 1; i <= m; i++ {
+		maxErr <- struct{}{}
+	}
+	close(maxErr)
+	fmt.Println(len(maxErr))
 
-	// create workers
+	var wg sync.WaitGroup
+	wg.Add(n)
+
 	for i := 1; i <= n; i++ {
 		go func() {
 			defer wg.Done()
 			for fu := range jobs {
-				if safeCounter.Get() > m {
-					return
-				} else if fu() != nil {
-					safeCounter.Inc()
+				if fu() != nil {
+					if _, ok := <-maxErr; !ok {
+						return
+					}
 				}
 			}
 		}()
 	}
 
-	// create jobs for workers
 	for _, t := range tasks {
-		if safeCounter.Get() <= m {
+		if len(maxErr) > 0 {
 			jobs <- t
 		}
 	}
 	close(jobs)
-
-	// wait workers
 	wg.Wait()
 
-	if safeCounter.value <= m+n {
+	if _, ok := <-maxErr; ok {
 		ErrErrorsLimitExceeded = nil
 	}
 
