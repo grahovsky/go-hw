@@ -2,7 +2,6 @@ package hw05parallelexecution
 
 import (
 	"errors"
-	"fmt"
 	"sync"
 )
 
@@ -22,7 +21,6 @@ func Run(tasks []Task, n, m int) error {
 		maxErr <- struct{}{}
 	}
 	close(maxErr)
-	fmt.Println(len(maxErr))
 
 	var wg sync.WaitGroup
 	wg.Add(n)
