@@ -9,6 +9,12 @@ type (
 type Stage func(in In) (out Out)
 
 func ExecutePipeline(in In, done In, stages ...Stage) Out {
+	if in == nil || stages == nil {
+		emptyOut := make(Bi)
+		close(emptyOut)
+		return emptyOut
+	}
+
 	for _, stage := range stages {
 		in = runner(done, stage(in))
 	}

@@ -1,6 +1,7 @@
 package hw06pipelineexecution
 
 import (
+	"math"
 	"strconv"
 	"testing"
 	"time"
@@ -89,5 +90,49 @@ func TestPipeline(t *testing.T) {
 
 		require.Len(t, result, 0)
 		require.Less(t, int64(elapsed), int64(abortDur)+int64(fault))
+	})
+
+	t.Run("emty data case", func(t *testing.T) {
+		in := make(Bi)
+		data := []int{}
+
+		go func() {
+			for _, v := range data {
+				in <- v
+			}
+			close(in)
+		}()
+
+		result := make([]string, 0, 10)
+		for s := range ExecutePipeline(in, nil, stages...) {
+			result = append(result, s.(string))
+		}
+
+		require.Equal(t, []string{}, result)
+	})
+
+	t.Run("float case", func(t *testing.T) {
+		in := make(Bi)
+		data := []float64{4, 9, 25, 36, 49}
+
+		floatStages := []Stage{
+			g("Sqrt 2", func(v interface{}) interface{} { return math.Sqrt(v.(float64)) }),
+			g("Multiplier (* 2)", func(v interface{}) interface{} { return v.(float64) * 2 }),
+			g("Adder (+ 10)", func(v interface{}) interface{} { return v.(float64) + 10 }),
+		}
+
+		go func() {
+			for _, v := range data {
+				in <- v
+			}
+			close(in)
+		}()
+
+		result := make([]float64, 0, 10)
+		for s := range ExecutePipeline(in, nil, floatStages...) {
+			result = append(result, s.(float64))
+		}
+
+		require.Equal(t, []float64{14, 16, 20, 22, 24}, result)
 	})
 }
