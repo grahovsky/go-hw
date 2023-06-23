@@ -10,11 +10,11 @@ import (
 )
 
 var (
-	// ErrUnsupportedFile          = errors.New("unsupported file")
 	ErrSameFile                 = errors.New("same file")
 	ErrOffsetExceedsFileSize    = errors.New("offset exceeds file size")
 	ErrFileIsDir                = errors.New("file is directory")
 	ErrNoLimitedDeviceOperation = errors.New("device operation no limited")
+	// ErrUnsupportedFile          = errors.New("unsupported file").
 )
 
 func Copy(fromPath, toPath string, offset, limit int64) error {
@@ -111,7 +111,6 @@ func checkRestrictions(files []*os.File, limit int64) error {
 	cachedName := ""
 
 	for _, file := range files {
-
 		if file.Name() == cachedName {
 			return ErrSameFile
 		}
@@ -129,7 +128,6 @@ func checkRestrictions(files []*os.File, limit int64) error {
 		if stat.Sys().(*syscall.Stat_t).Mode&syscall.S_IFBLK != 0 {
 			isDevice = true
 		}
-
 	}
 
 	if isDevice && limit == 0 {

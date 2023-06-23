@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -29,7 +28,7 @@ func TestCopy(t *testing.T) {
 	} {
 		tst := tst
 		t.Run(fmt.Sprintf("%v_%v", offset, limit), func(t *testing.T) {
-			dst, err := ioutil.TempFile(os.TempDir(), "go-copy")
+			dst, err := os.CreateTemp(os.TempDir(), "go-copy")
 			require.NoError(t, err)
 			defer dst.Close()
 			defer os.Remove(dst.Name())
@@ -38,19 +37,19 @@ func TestCopy(t *testing.T) {
 			require.NoError(t, err)
 			expPath := filepath.Join(dataPath, fmt.Sprintf("out_offset%d_limit%d.txt", tst.offset, tst.limit))
 			fmt.Println(expPath)
-			expContent, err := ioutil.ReadFile(expPath)
+			expContent, err := os.ReadFile(expPath)
 			require.NoError(t, err)
-			dstContent, err := ioutil.ReadFile(dst.Name())
+			dstContent, err := os.ReadFile(dst.Name())
 			require.NoError(t, err)
 			require.Zero(t, bytes.Compare(expContent, dstContent))
 		})
 	}
 
-	t.Run(fmt.Sprintf("offset exceeds file size"), func(t *testing.T) {
+	t.Run("offset exceeds file size", func(t *testing.T) {
 		offset := 70000
 		limit := 0
 
-		dst, err := ioutil.TempFile(os.TempDir(), "go-copy")
+		dst, err := os.CreateTemp(os.TempDir(), "go-copy")
 		require.NoError(t, err)
 		defer dst.Close()
 		defer os.Remove(dst.Name())
@@ -58,11 +57,11 @@ func TestCopy(t *testing.T) {
 		require.ErrorIs(t, err, ErrOffsetExceedsFileSize)
 	})
 
-	t.Run(fmt.Sprintf("err same file"), func(t *testing.T) {
+	t.Run("err same file", func(t *testing.T) {
 		offset := 0
 		limit := 0
 
-		dst, err := ioutil.TempFile(os.TempDir(), "go-copy")
+		dst, err := os.CreateTemp(os.TempDir(), "go-copy")
 		require.NoError(t, err)
 		defer dst.Close()
 		defer os.Remove(dst.Name())
@@ -70,12 +69,12 @@ func TestCopy(t *testing.T) {
 		require.ErrorIs(t, err, ErrSameFile)
 	})
 
-	t.Run(fmt.Sprintf("block device copy support"), func(t *testing.T) {
+	t.Run("block device copy support", func(t *testing.T) {
 		srcPath := "/dev/urandom"
 		offset := 0
 		limit := 10_000
 
-		dst, err := ioutil.TempFile(os.TempDir(), "go-copy")
+		dst, err := os.CreateTemp(os.TempDir(), "go-copy")
 		require.NoError(t, err)
 		defer dst.Close()
 		defer os.Remove(dst.Name())
@@ -83,12 +82,12 @@ func TestCopy(t *testing.T) {
 		require.NoError(t, err)
 	})
 
-	t.Run(fmt.Sprintf("block device copy"), func(t *testing.T) {
+	t.Run("block device copy", func(t *testing.T) {
 		srcPath := "/dev/urandom"
 		offset := 0
 		limit := 0
 
-		dst, err := ioutil.TempFile(os.TempDir(), "go-copy")
+		dst, err := os.CreateTemp(os.TempDir(), "go-copy")
 		require.NoError(t, err)
 		defer dst.Close()
 		defer os.Remove(dst.Name())
