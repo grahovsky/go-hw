@@ -4,13 +4,17 @@ import (
 	"errors"
 	"io"
 	"os"
+	"syscall"
 
 	"github.com/cheggaaa/pb/v3"
 )
 
 var (
-	ErrUnsupportedFile       = errors.New("unsupported file")
-	ErrOffsetExceedsFileSize = errors.New("offset exceeds file size")
+	// ErrUnsupportedFile          = errors.New("unsupported file")
+	ErrSameFile                 = errors.New("same file")
+	ErrOffsetExceedsFileSize    = errors.New("offset exceeds file size")
+	ErrFileIsDir                = errors.New("file is directory")
+	ErrNoLimitedDeviceOperation = errors.New("device operation no limited")
 )
 
 func Copy(fromPath, toPath string, offset, limit int64) error {
@@ -18,8 +22,9 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	if err != nil {
 		return err
 	}
-	fileIn.Seek(offset, 0)
 	defer fileIn.Close()
+
+	fileIn.Seek(offset, 0)
 
 	fileOut, err := os.Create(toPath)
 	if err != nil {
@@ -27,11 +32,20 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	}
 	defer fileOut.Close()
 
-	bs, err := BarSize(fileIn)
+	if err := checkRestrictions([]*os.File{fileIn, fileOut}, limit); err != nil {
+		return err
+	}
+
+	bs, err := BarSize(fileIn, limit, offset)
 	if err != nil {
 		return err
 	}
+
 	bar := pb.StartNew(bs)
+	// bar.Set(pb.Bytes, true)
+	// bar.SetRefreshRate(time.Microsecond)
+	// bar.Set(pb.SIBytesPrefix, true)
+	// barWriter := bar.NewProxyWriter(fileOut)
 
 	bufSize := 1 * 1024
 	buf := make([]byte, bufSize)
@@ -60,7 +74,6 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 		}
 
 		fileOut.Write(buf[:bufSizeActual])
-
 		bar.Add(bufSizeActual)
 
 		if needBreak {
@@ -73,7 +86,7 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	return nil
 }
 
-func BarSize(file *os.File) (int, error) {
+func BarSize(file *os.File, limit, offset int64) (int, error) {
 	var barSize int
 	if fi, err := file.Stat(); err == nil {
 		fileSize := fi.Size()
@@ -91,4 +104,37 @@ func BarSize(file *os.File) (int, error) {
 	}
 
 	return barSize, nil
+}
+
+func checkRestrictions(files []*os.File, limit int64) error {
+	isDevice := false
+	cachedName := ""
+
+	for _, file := range files {
+
+		if file.Name() == cachedName {
+			return ErrSameFile
+		}
+		cachedName = file.Name()
+
+		stat, err := file.Stat()
+		if err != nil {
+			return err
+		}
+
+		if stat.IsDir() {
+			return ErrFileIsDir
+		}
+
+		if stat.Sys().(*syscall.Stat_t).Mode&syscall.S_IFBLK != 0 {
+			isDevice = true
+		}
+
+	}
+
+	if isDevice && limit == 0 {
+		return ErrNoLimitedDeviceOperation
+	}
+
+	return nil
 }
