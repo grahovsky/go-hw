@@ -15,7 +15,7 @@ var (
 	ErrOffsetExceedsFileSize    = errors.New("offset exceeds file size")
 	ErrFileIsDir                = errors.New("file is directory")
 	ErrNoLimitedDeviceOperation = errors.New("device operation no limited")
-	// ErrUnsupportedFile          = errors.New("unsupported file").
+	ErrUnsupportedFile          = errors.New("unsupported file")
 )
 
 func Copy(fromPath, toPath string, offset, limit int64) error {
@@ -124,16 +124,24 @@ func checkRestrictions(fileIn, fileOut *os.File, limit int64) error {
 
 	files := []*os.File{fileIn, fileOut}
 	for _, file := range files {
-		stat, err := file.Stat()
+		fileInfo, err := file.Stat()
 		if err != nil {
 			return err
 		}
 
-		if stat.IsDir() {
+		if fileInfo.IsDir() {
 			return ErrFileIsDir
 		}
 
-		if stat.Sys().(*syscall.Stat_t).Mode&syscall.S_IFBLK != 0 {
+		linkInfo, err := os.Lstat(file.Name())
+		if err != nil {
+			return err
+		}
+		if linkInfo.Mode()&os.ModeSymlink != 0 {
+			return ErrUnsupportedFile
+		}
+
+		if fileInfo.Sys().(*syscall.Stat_t).Mode&syscall.S_IFBLK != 0 {
 			isDevice = true
 		}
 	}
