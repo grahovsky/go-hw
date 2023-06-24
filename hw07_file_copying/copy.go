@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io"
 	"os"
+	"path/filepath"
 	"syscall"
 
 	"github.com/cheggaaa/pb/v3"
@@ -32,7 +33,7 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	}
 	defer fileOut.Close()
 
-	if err := checkRestrictions([]*os.File{fileIn, fileOut}, limit); err != nil {
+	if err := checkRestrictions(fileIn, fileOut, limit); err != nil {
 		return err
 	}
 
@@ -42,12 +43,12 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	}
 
 	bar := pb.StartNew(bs)
-	// bar.Set(pb.Bytes, true)
+	bar.Set(pb.Bytes, true)
 	// bar.SetRefreshRate(time.Microsecond)
 	// bar.Set(pb.SIBytesPrefix, true)
 	// barWriter := bar.NewProxyWriter(fileOut)
 
-	bufSize := 1 * 1024
+	bufSize := 4 * 1024
 	buf := make([]byte, bufSize)
 
 	readed := 0
@@ -106,16 +107,23 @@ func BarSize(file *os.File, limit, offset int64) (int, error) {
 	return barSize, nil
 }
 
-func checkRestrictions(files []*os.File, limit int64) error {
+func checkRestrictions(fileIn, fileOut *os.File, limit int64) error {
+	pathIn, err := filepath.Abs(fileIn.Name())
+	if err != nil {
+		return err
+	}
+	pathOut, err := filepath.Abs(fileOut.Name())
+	if err != nil {
+		return err
+	}
+	if pathIn == pathOut {
+		return ErrSameFile
+	}
+
 	isDevice := false
-	cachedName := ""
 
+	files := []*os.File{fileIn, fileOut}
 	for _, file := range files {
-		if file.Name() == cachedName {
-			return ErrSameFile
-		}
-		cachedName = file.Name()
-
 		stat, err := file.Stat()
 		if err != nil {
 			return err
