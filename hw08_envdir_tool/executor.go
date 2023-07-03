@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -24,18 +25,19 @@ func RunCmd(cmd []string, env Environment) (returnCode int) {
 	}
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
+	var exitCode int
 
 	if err := command.Run(); err != nil {
-		if exitErr, ok := err.(*exec.ExitError); ok {
-			exitCode := exitErr.ExitCode()
-			return exitCode
+		var valErrs *exec.ExitError
+		if errors.As(err, &valErrs) {
+			exitCode = valErrs.ExitCode()
 		} else {
 			log.Println(err)
-			return 1
+			exitCode = 1
 		}
 	}
 
-	return 0
+	return exitCode
 }
 
 func removeEnv(env []string, name string) []string {

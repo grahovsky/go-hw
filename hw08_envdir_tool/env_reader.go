@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -24,21 +23,21 @@ const (
 // ReadDir reads a specified directory and returns map of env variables.
 // Variables represented as files where filename is name of variable, file first line is a value.
 func ReadDir(dir string) (Environment, error) {
-	files, err := ioutil.ReadDir(dir)
+	files, err := os.ReadDir(dir)
 	if err != nil {
 		return nil, err
 	}
-	var env Environment = make(Environment)
+	env := make(Environment)
 
 	for _, file := range files {
-		if !file.Mode().IsRegular() || file.Mode().IsDir() {
+		if !file.Type().IsRegular() || file.IsDir() {
 			continue
 		}
 		if strings.ContainsAny(file.Name(), wrongEnvNameChars) {
 			continue
 		}
 		filename := filepath.Join(dir, file.Name())
-		data, err := ioutil.ReadFile(filename)
+		data, err := os.ReadFile(filename)
 		if err != nil {
 			return nil, err
 		}
@@ -51,7 +50,6 @@ func ReadDir(dir string) (Environment, error) {
 			Value:      clearValue(data),
 			NeedRemove: fi.Size() == 0,
 		}
-
 	}
 	return env, nil
 }
