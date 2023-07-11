@@ -42,10 +42,57 @@ func TestValidate(t *testing.T) {
 		expectedErr error
 	}{
 		{
-			// Place your code here.
+			in: User{
+				ID:     "12345678-1234-1234-1234-123456789abc",
+				Name:   "John Doe",
+				Age:    25,
+				Email:  "some@example.com",
+				Role:   "admin",
+				Phones: []string{"12345678901"},
+			},
+			expectedErr: ValidationErrors{},
 		},
-		// ...
-		// Place your code here.
+		{
+			in: User{
+				ID:     "12345678-1234-1234-1234-123456789abc",
+				Name:   "John Doe",
+				Age:    17,
+				Email:  "johndoe@example.com",
+				Role:   "admin",
+				Phones: []string{"12345678901"},
+			},
+			expectedErr: ValidationErrors{
+				{Field: "Age", Err: fmt.Errorf("value must be greater than or equal to 18")},
+			},
+		},
+		{
+			in: User{
+				ID:     "12345678",
+				Name:   "John Doe",
+				Age:    30,
+				Email:  "johndoe@example.com",
+				Role:   "admin",
+				Phones: []string{"12345678901"},
+			},
+			expectedErr: ValidationErrors{
+				{Field: "ID", Err: fmt.Errorf("string length must be 36")},
+			},
+		},
+		{
+			in: App{
+				Version: "1.0.0",
+			},
+			expectedErr: ValidationErrors{},
+		},
+		{
+			in: Response{
+				Code: 201,
+				Body: "some body",
+			},
+			expectedErr: ValidationErrors{
+				{Field: "Code", Err: fmt.Errorf("value must be one of 200,404,500")},
+			},
+		},
 	}
 
 	for i, tt := range tests {
@@ -53,8 +100,25 @@ func TestValidate(t *testing.T) {
 			tt := tt
 			t.Parallel()
 
-			// Place your code here.
-			_ = tt
+			err := Validate(tt.in)
+
+			if !errorsMatch(err, tt.expectedErr) {
+				t.Errorf("unexpected error: got %v, want %v", err, tt.expectedErr)
+			}
 		})
 	}
+}
+
+func errorsMatch(err1, err2 error) bool {
+	if len(err1.(ValidationErrors)) != len(err2.(ValidationErrors)) {
+		return false
+	}
+
+	for i := range err1.(ValidationErrors) {
+		if err1.(ValidationErrors)[i].Field != err2.(ValidationErrors)[i].Field || err1.(ValidationErrors)[i].Err.Error() != err2.(ValidationErrors)[i].Err.Error() {
+			return false
+		}
+	}
+
+	return true
 }
