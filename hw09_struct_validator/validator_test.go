@@ -2,6 +2,7 @@ package hw09structvalidator
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"testing"
 )
@@ -24,15 +25,14 @@ type (
 		Version string `validate:"len:5"`
 	}
 
-	Token struct {
-		Header    []byte
-		Payload   []byte
-		Signature []byte
-	}
-
 	Response struct {
 		Code int    `validate:"in:200,404,500"`
 		Body string `json:"omitempty"`
+	}
+
+	intSlice struct {
+		rangesMinMax []int `validate:"min:10|max:20"`
+		rangesIn     []int `validate:"in:256,1024"`
 	}
 )
 
@@ -42,10 +42,66 @@ func TestValidate(t *testing.T) {
 		expectedErr error
 	}{
 		{
-			// Place your code here.
+			in: User{
+				ID:     "12345678-1234-1234-1234-123456789abc",
+				Name:   "John Doe",
+				Age:    25,
+				Email:  "some@example.com",
+				Role:   "admin",
+				Phones: []string{"12345678901"},
+			},
+			expectedErr: ValidationErrors{},
 		},
-		// ...
-		// Place your code here.
+		{
+			in: User{
+				ID:     "12345678-1234-1234-1234-123456789abc",
+				Name:   "John Doe",
+				Age:    17,
+				Email:  "johndoe@example.com",
+				Role:   "admin",
+				Phones: []string{"12345678901"},
+			},
+			expectedErr: ValidationErrors{
+				{Field: "Age", Err: ErrValidationMin},
+			},
+		},
+		{
+			in: User{
+				ID:     "12345678",
+				Name:   "John Doe",
+				Age:    30,
+				Email:  "johndoe@example.com",
+				Role:   "admin",
+				Phones: []string{"12345678901"},
+			},
+			expectedErr: ValidationErrors{
+				{Field: "ID", Err: ErrValidationLen},
+			},
+		},
+		{
+			in: App{
+				Version: "1.0.0",
+			},
+			expectedErr: ValidationErrors{},
+		},
+		{
+			in: Response{
+				Code: 201,
+				Body: "some body",
+			},
+			expectedErr: ValidationErrors{
+				{Field: "Code", Err: ErrValidationIn},
+			},
+		},
+		{
+			in: intSlice{
+				rangesMinMax: []int{10, 11, 12},
+				rangesIn:     []int{256, 1025},
+			},
+			expectedErr: ValidationErrors{
+				{Field: "rangesIn", Err: ErrValidationIn},
+			},
+		},
 	}
 
 	for i, tt := range tests {
@@ -53,8 +109,28 @@ func TestValidate(t *testing.T) {
 			tt := tt
 			t.Parallel()
 
-			// Place your code here.
-			_ = tt
+			var vErr, exprErr ValidationErrors
+			err := Validate(tt.in)
+
+			if errors.As(err, &vErr) && errors.As(tt.expectedErr, &exprErr) {
+				if !errorsMatch(vErr, exprErr) {
+					t.Errorf("unexpected error: got %v, want %v", err, tt.expectedErr)
+				}
+			}
 		})
 	}
+}
+
+func errorsMatch(err1, err2 ValidationErrors) bool {
+	if len(err1) != len(err2) {
+		return false
+	}
+
+	for i := range err1 {
+		if !errors.Is(err1[i].Err, err2[i].Err) {
+			return false
+		}
+	}
+
+	return true
 }
