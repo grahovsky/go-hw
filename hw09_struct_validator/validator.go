@@ -16,6 +16,20 @@ type ValidationError struct {
 
 type ValidationErrors []ValidationError
 
+var (
+	ErrInvalidInputType = errors.New("input parameter type must be a struct")
+
+	ErrInvalidInteger   = errors.New("invalid integer")
+	ErrInvalidRegexp    = errors.New("invalig regexp")
+	ErrInvalidString    = errors.New("invalid string")
+	ErrInvalidFieldType = errors.New("invalid field type")
+
+	ErrValidationMin = errors.New("value less than a required minimum")
+	ErrValidationMax = errors.New("value more than a required maximum")
+	ErrValidationIn  = errors.New("value not found in list of possible values")
+	ErrValidationLen = errors.New("invalid value length")
+)
+
 func (v ValidationErrors) Error() string {
 	var sb strings.Builder
 	for _, ve := range v {
@@ -27,7 +41,7 @@ func (v ValidationErrors) Error() string {
 func Validate(v interface{}) error {
 	val := reflect.ValueOf(v)
 	if val.Kind() != reflect.Struct {
-		return errors.New("input is not a struct")
+		return ErrInvalidInputType
 	}
 
 	var validationErrors ValidationErrors
@@ -65,7 +79,7 @@ func validateField(fieldValue reflect.Value, validator string) error {
 		validatorArgs = validatorParts[1]
 	}
 
-	switch fieldValue.Kind() {
+	switch fieldValue.Kind() { //nolint: exhaustive
 	case reflect.String:
 		return validateStringField(fieldValue, validatorType, validatorArgs)
 	case reflect.Int, reflect.Int64:
@@ -81,6 +95,8 @@ func validateField(fieldValue reflect.Value, validator string) error {
 		default:
 			return validateSliceField(fieldValue, validatorType, validatorArgs)
 		}
+	default:
+		return ErrInvalidFieldType
 	}
 
 	return nil
@@ -94,7 +110,7 @@ func validateStringField(fieldValue reflect.Value, validatorType, validatorArgs 
 			return err
 		}
 		if len(fieldValue.String()) != strLen {
-			return fmt.Errorf("string length must be %d", strLen)
+			return errors.Join(ErrValidationLen, fmt.Errorf("length must be %d", strLen))
 		}
 	case "regexp":
 		r, err := regexp.Compile(validatorArgs)
@@ -102,7 +118,7 @@ func validateStringField(fieldValue reflect.Value, validatorType, validatorArgs 
 			return err
 		}
 		if !r.MatchString(fieldValue.String()) {
-			return fmt.Errorf("string does not match regex pattern")
+			return errors.Join(ErrInvalidRegexp, fmt.Errorf("string does not match regex pattern"))
 		}
 	case "in":
 		validValues := strings.Split(validatorArgs, ",")
@@ -112,7 +128,9 @@ func validateStringField(fieldValue reflect.Value, validatorType, validatorArgs 
 				return nil
 			}
 		}
-		return fmt.Errorf("string must be one of %s", validatorArgs)
+		return errors.Join(ErrValidationIn, fmt.Errorf("string must be one of %s", validatorArgs))
+	default:
+		return ErrInvalidString
 	}
 	return nil
 }
@@ -125,7 +143,7 @@ func validateIntField(fieldValue reflect.Value, validatorType, validatorArgs str
 			return err
 		}
 		if fieldValue.Int() < int64(minValue) {
-			return fmt.Errorf("value must be greater than or equal to %d", minValue)
+			return errors.Join(ErrValidationMin, fmt.Errorf("value must be greater than or equal to %d", minValue))
 		}
 	case "max":
 		maxValue, err := strconv.Atoi(validatorArgs)
@@ -133,7 +151,7 @@ func validateIntField(fieldValue reflect.Value, validatorType, validatorArgs str
 			return err
 		}
 		if fieldValue.Int() > int64(maxValue) {
-			return fmt.Errorf("value must be less than or equal to %d", maxValue)
+			return errors.Join(ErrValidationMax, fmt.Errorf("value must be less than or equal to %d", maxValue))
 		}
 	case "in":
 		validValues := strings.Split(validatorArgs, ",")
@@ -143,7 +161,9 @@ func validateIntField(fieldValue reflect.Value, validatorType, validatorArgs str
 				return nil
 			}
 		}
-		return fmt.Errorf("value must be one of %s", validatorArgs)
+		return errors.Join(ErrValidationIn, fmt.Errorf("value must be one of %s", validatorArgs))
+	default:
+		return ErrInvalidInteger
 	}
 	return nil
 }
@@ -157,8 +177,9 @@ func validateSliceField(fieldValue reflect.Value, validatorType, validatorArgs s
 		}
 
 		if fieldValue.Len() != sliceLen {
-			return fmt.Errorf("slice length must be %d", sliceLen)
+			return errors.Join(ErrValidationLen, fmt.Errorf("length must be %d", sliceLen))
 		}
+	default:
 	}
 	return nil
 }

@@ -2,6 +2,7 @@ package hw09structvalidator
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"testing"
 )
@@ -62,7 +63,7 @@ func TestValidate(t *testing.T) {
 				Phones: []string{"12345678901"},
 			},
 			expectedErr: ValidationErrors{
-				{Field: "Age", Err: fmt.Errorf("value must be greater than or equal to 18")},
+				{Field: "Age", Err: ErrValidationMin},
 			},
 		},
 		{
@@ -75,7 +76,7 @@ func TestValidate(t *testing.T) {
 				Phones: []string{"12345678901"},
 			},
 			expectedErr: ValidationErrors{
-				{Field: "ID", Err: fmt.Errorf("string length must be 36")},
+				{Field: "ID", Err: ErrValidationLen},
 			},
 		},
 		{
@@ -90,7 +91,7 @@ func TestValidate(t *testing.T) {
 				Body: "some body",
 			},
 			expectedErr: ValidationErrors{
-				{Field: "Code", Err: fmt.Errorf("value must be one of 200,404,500")},
+				{Field: "Code", Err: ErrValidationIn},
 			},
 		},
 	}
@@ -100,22 +101,25 @@ func TestValidate(t *testing.T) {
 			tt := tt
 			t.Parallel()
 
+			var vErr, exprErr ValidationErrors
 			err := Validate(tt.in)
 
-			if !errorsMatch(err, tt.expectedErr) {
-				t.Errorf("unexpected error: got %v, want %v", err, tt.expectedErr)
+			if errors.As(err, &vErr) && errors.As(tt.expectedErr, &exprErr) {
+				if !errorsMatch(vErr, exprErr) {
+					t.Errorf("unexpected error: got %v, want %v", err, tt.expectedErr)
+				}
 			}
 		})
 	}
 }
 
-func errorsMatch(err1, err2 error) bool {
-	if len(err1.(ValidationErrors)) != len(err2.(ValidationErrors)) {
+func errorsMatch(err1, err2 ValidationErrors) bool {
+	if len(err1) != len(err2) {
 		return false
 	}
 
-	for i := range err1.(ValidationErrors) {
-		if err1.(ValidationErrors)[i].Field != err2.(ValidationErrors)[i].Field || err1.(ValidationErrors)[i].Err.Error() != err2.(ValidationErrors)[i].Err.Error() {
+	for i := range err1 {
+		if !errors.Is(err1[i].Err, err2[i].Err) {
 			return false
 		}
 	}
