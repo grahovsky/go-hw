@@ -25,15 +25,14 @@ type (
 		Version string `validate:"len:5"`
 	}
 
-	Token struct {
-		Header    []byte
-		Payload   []byte
-		Signature []byte
-	}
-
 	Response struct {
 		Code int    `validate:"in:200,404,500"`
 		Body string `json:"omitempty"`
+	}
+
+	intSlice struct {
+		rangesMinMax []int `validate:"min:10|max:20"`
+		rangesIn     []int `validate:"in:256,1024"`
 	}
 )
 
@@ -92,6 +91,15 @@ func TestValidate(t *testing.T) {
 			},
 			expectedErr: ValidationErrors{
 				{Field: "Code", Err: ErrValidationIn},
+			},
+		},
+		{
+			in: intSlice{
+				rangesMinMax: []int{10, 11, 12},
+				rangesIn:     []int{256, 1025},
+			},
+			expectedErr: ValidationErrors{
+				{Field: "rangesIn", Err: ErrValidationIn},
 			},
 		},
 	}

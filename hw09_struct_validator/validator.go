@@ -58,12 +58,14 @@ func Validate(v interface{}) error {
 		validators := strings.Split(validatorTag, "|")
 
 		for _, validator := range validators {
-			err := validateField(fieldValue, validator)
-			if err != nil {
-				validationErrors = append(validationErrors, ValidationError{
-					Field: field.Name,
-					Err:   err,
-				})
+			errs := validateField(field, fieldValue, validator)
+			for _, err := range errs {
+				if err != nil {
+					validationErrors = append(validationErrors, ValidationError{
+						Field: field.Name,
+						Err:   err,
+					})
+				}
 			}
 		}
 	}
@@ -71,7 +73,7 @@ func Validate(v interface{}) error {
 	return validationErrors
 }
 
-func validateField(fieldValue reflect.Value, validator string) error {
+func validateField(field reflect.StructField, fieldValue reflect.Value, validator string) []error {
 	validatorParts := strings.SplitN(validator, ":", 2)
 	validatorType := validatorParts[0]
 	validatorArgs := ""
@@ -79,27 +81,29 @@ func validateField(fieldValue reflect.Value, validator string) error {
 		validatorArgs = validatorParts[1]
 	}
 
-	switch fieldValue.Kind() { //nolint: exhaustive
+	switch field.Type.Kind() { //nolint: exhaustive
 	case reflect.String:
-		return validateStringField(fieldValue, validatorType, validatorArgs)
+		return []error{validateStringField(fieldValue, validatorType, validatorArgs)}
 	case reflect.Int, reflect.Int64:
-		return validateIntField(fieldValue, validatorType, validatorArgs)
+		return []error{validateIntField(fieldValue, validatorType, validatorArgs)}
 	case reflect.Slice:
-		switch fieldValues := fieldValue.Interface().(type) {
-		case []string:
-			for _, fv := range fieldValues {
-				if err := validateStringField(reflect.ValueOf(fv), validatorType, validatorArgs); err != nil {
-					return err
-				}
+		errs := []error{}
+		for i := 0; i < fieldValue.Len(); i++ {
+			elem := fieldValue.Index(i)
+			switch elem.Kind() { //nolint: exhaustive
+			case reflect.Int:
+				errs = append(errs, validateIntField(elem, validatorType, validatorArgs))
+			case reflect.String:
+				errs = append(errs, validateStringField(elem, validatorType, validatorArgs))
+			default:
+				errs = append(errs, validateSlice(fieldValue, validatorType, validatorArgs))
+				return errs
 			}
-		default:
-			return validateSliceField(fieldValue, validatorType, validatorArgs)
 		}
+		return errs
 	default:
-		return ErrInvalidFieldType
+		return []error{ErrInvalidFieldType}
 	}
-
-	return nil
 }
 
 func validateStringField(fieldValue reflect.Value, validatorType, validatorArgs string) error {
@@ -112,6 +116,7 @@ func validateStringField(fieldValue reflect.Value, validatorType, validatorArgs 
 		if len(fieldValue.String()) != strLen {
 			return errors.Join(ErrValidationLen, fmt.Errorf("length must be %d", strLen))
 		}
+		return nil
 	case "regexp":
 		r, err := regexp.Compile(validatorArgs)
 		if err != nil {
@@ -163,12 +168,12 @@ func validateIntField(fieldValue reflect.Value, validatorType, validatorArgs str
 		}
 		return errors.Join(ErrValidationIn, fmt.Errorf("value must be one of %s", validatorArgs))
 	default:
-		return ErrInvalidInteger
+		return nil
 	}
 	return nil
 }
 
-func validateSliceField(fieldValue reflect.Value, validatorType, validatorArgs string) error {
+func validateSlice(fieldValue reflect.Value, validatorType, validatorArgs string) error {
 	switch validatorType {
 	case "len":
 		sliceLen, err := strconv.Atoi(validatorArgs)
@@ -176,7 +181,7 @@ func validateSliceField(fieldValue reflect.Value, validatorType, validatorArgs s
 			return err
 		}
 
-		if fieldValue.Len() != sliceLen {
+		if len(fieldValue.Bytes()) != sliceLen {
 			return errors.Join(ErrValidationLen, fmt.Errorf("length must be %d", sliceLen))
 		}
 	default:
