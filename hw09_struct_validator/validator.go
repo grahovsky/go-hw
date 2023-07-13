@@ -88,17 +88,21 @@ func validateField(field reflect.StructField, fieldValue reflect.Value, validato
 		return []error{validateIntField(fieldValue, validatorType, validatorArgs)}
 	case reflect.Slice:
 		errs := []error{}
+		var valFunc func(reflect.Value, string, string) error
+
+		elemType := field.Type.Elem()
+		switch elemType.Kind() {
+		case reflect.Int, reflect.Int64:
+			valFunc = validateIntField
+		case reflect.String:
+			valFunc = validateStringField
+		default:
+			valFunc = validateOther
+		}
+
 		for i := 0; i < fieldValue.Len(); i++ {
 			elem := fieldValue.Index(i)
-			switch elem.Kind() { //nolint: exhaustive
-			case reflect.Int:
-				errs = append(errs, validateIntField(elem, validatorType, validatorArgs))
-			case reflect.String:
-				errs = append(errs, validateStringField(elem, validatorType, validatorArgs))
-			default:
-				errs = append(errs, validateSlice(fieldValue, validatorType, validatorArgs))
-				return errs
-			}
+			errs = append(errs, valFunc(elem, validatorType, validatorArgs))
 		}
 		return errs
 	default:
@@ -173,7 +177,7 @@ func validateIntField(fieldValue reflect.Value, validatorType, validatorArgs str
 	return nil
 }
 
-func validateSlice(fieldValue reflect.Value, validatorType, validatorArgs string) error {
+func validateOther(fieldValue reflect.Value, validatorType, validatorArgs string) error {
 	switch validatorType {
 	case "len":
 		sliceLen, err := strconv.Atoi(validatorArgs)
