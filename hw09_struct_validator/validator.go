@@ -91,7 +91,7 @@ func validateField(field reflect.StructField, fieldValue reflect.Value, validato
 		var valFunc func(reflect.Value, string, string) error
 
 		elemType := field.Type.Elem()
-		switch elemType.Kind() {
+		switch elemType.Kind() { //nolint: exhaustive
 		case reflect.Int, reflect.Int64:
 			valFunc = validateIntField
 		case reflect.String:
