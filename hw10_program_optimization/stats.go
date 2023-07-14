@@ -7,14 +7,14 @@ import (
 	"regexp"
 	"strings"
 
-	jsoniter "github.com/json-iterator/go"
+	easyjson "github.com/mailru/easyjson"
 )
 
 type User struct {
-	Email    string
 	ID       int
 	Name     string
 	Username string
+	Email    string
 	Phone    string
 	Password string
 	Address  string
@@ -35,19 +35,18 @@ func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 type users [100_000]User
 
 func getUsers(r io.Reader) (result users, err error) {
-	json := jsoniter.ConfigCompatibleWithStandardLibrary
-	decoder := json.NewDecoder(bufio.NewReader(r))
+	scaner := bufio.NewScanner(r)
+	scaner.Split(bufio.ScanLines)
+
 	i := 0
-	for decoder.More() {
-		var user User
-		if err = decoder.Decode(&user); err != nil {
-			return result, err
+	for scaner.Scan() {
+		if err = easyjson.Unmarshal(scaner.Bytes(), &result[i]); err != nil {
+			return
 		}
-		result[i] = user
 		i++
 	}
 
-	return result, nil
+	return
 }
 
 func countDomains(u users, domain string) (DomainStat, error) {
@@ -57,8 +56,7 @@ func countDomains(u users, domain string) (DomainStat, error) {
 		if strings.HasSuffix(user.Email, domain) {
 			match := re.FindStringSubmatch(user.Email)
 			if len(match) > 0 {
-				lowerDomain := strings.ToLower(match[1])
-				result[lowerDomain]++
+				result[strings.ToLower(match[1])]++
 			}
 		}
 	}
