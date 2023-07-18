@@ -1,10 +1,8 @@
 package main
 
 import (
-	"bufio"
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"net"
 	"time"
@@ -13,6 +11,8 @@ import (
 var (
 	ErrNoConnection     = errors.New("NO CONNECTION")
 	ErrClosedConnection = errors.New("CONNECTION IS CLOSED")
+	ErrWrite            = errors.New("FAILED TO WRITE")
+	ErrRead             = errors.New("FAILED TO READ")
 )
 
 type TelnetClient interface {
@@ -54,25 +54,19 @@ func (tc *telnetClient) Send(ctx context.Context) error {
 		return ErrNoConnection
 	}
 
-	scanner := bufio.NewScanner(tc.in)
-
 	var err error
-
 OUTER:
 	for {
 		select {
 		case <-ctx.Done():
 			break OUTER
 		default:
-			if scanner.Scan() {
-				str := scanner.Text()
-				if str == "quit" {
-					break OUTER
-				}
-				tc.conn.Write([]byte(fmt.Sprintf("%s\n", str)))
+			if _, err = io.Copy(tc.conn, tc.in); err != nil {
+				break OUTER
 			}
 		}
 	}
+
 	return err
 }
 
@@ -81,7 +75,6 @@ func (tc *telnetClient) Receive(ctx context.Context) error {
 		return ErrNoConnection
 	}
 
-	scanner := bufio.NewScanner(tc.conn)
 	var err error
 
 OUTER:
@@ -90,11 +83,7 @@ OUTER:
 		case <-ctx.Done():
 			break OUTER
 		default:
-			if scanner.Scan() {
-				str := scanner.Text()
-				tc.out.Write([]byte(fmt.Sprintf("%s\n", str)))
-			} else {
-				err = ErrClosedConnection
+			if _, err = io.Copy(tc.out, tc.conn); err != nil {
 				break OUTER
 			}
 		}

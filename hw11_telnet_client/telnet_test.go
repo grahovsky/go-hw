@@ -5,6 +5,7 @@ import (
 	"context"
 	"io"
 	"net"
+	"os/signal"
 	"sync"
 	"testing"
 	"time"
@@ -30,18 +31,28 @@ func TestTelnetClient(t *testing.T) {
 			timeout, err := time.ParseDuration("10s")
 			require.NoError(t, err)
 
-			ctx := context.Background()
+			ctx, abort := signal.NotifyContext(context.Background())
 
 			client := NewTelnetClient(l.Addr().String(), timeout, io.NopCloser(in), out)
 			require.NoError(t, client.Connect(ctx))
 			defer func() { require.NoError(t, client.Close()) }()
 
 			in.WriteString("hello\n")
-			err = client.Send(ctx)
-			require.NoError(t, err)
+			go func() {
+				err = client.Send(ctx)
+				require.NoError(t, err)
+			}()
 
-			err = client.Receive(ctx)
-			require.NoError(t, err)
+			time.Sleep(10 * time.Millisecond)
+
+			go func() {
+				err = client.Receive(ctx)
+				require.NoError(t, err)
+			}()
+
+			time.Sleep(10 * time.Millisecond)
+			abort()
+
 			require.Equal(t, "world\n", out.String())
 		}()
 
