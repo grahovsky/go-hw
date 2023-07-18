@@ -83,7 +83,12 @@ OUTER:
 		case <-ctx.Done():
 			break OUTER
 		default:
-			if _, err = io.Copy(tc.out, tc.conn); err != nil {
+			if _, errCopy := io.Copy(tc.out, tc.conn); errCopy != nil {
+				if errors.Is(errCopy, io.EOF) {
+					err = ErrClosedConnection
+				} else {
+					err = errCopy
+				}
 				break OUTER
 			}
 		}
