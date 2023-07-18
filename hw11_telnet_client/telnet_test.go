@@ -31,27 +31,18 @@ func TestTelnetClient(t *testing.T) {
 			timeout, err := time.ParseDuration("10s")
 			require.NoError(t, err)
 
-			ctx, abort := signal.NotifyContext(context.Background())
+			ctx, _ := signal.NotifyContext(context.Background())
 
 			client := NewTelnetClient(l.Addr().String(), timeout, io.NopCloser(in), out)
 			require.NoError(t, client.Connect(ctx))
 			defer func() { require.NoError(t, client.Close()) }()
 
 			in.WriteString("hello\n")
-			go func() {
-				err = client.Send(ctx)
-				require.NoError(t, err)
-			}()
+			err = client.Send()
+			require.NoError(t, err)
 
-			time.Sleep(10 * time.Millisecond)
-
-			go func() {
-				err = client.Receive(ctx)
-				require.NoError(t, err)
-			}()
-
-			time.Sleep(10 * time.Millisecond)
-			abort()
+			err = client.Receive()
+			require.NoError(t, err)
 
 			require.Equal(t, "world\n", out.String())
 		}()

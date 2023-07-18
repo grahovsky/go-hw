@@ -39,14 +39,14 @@ func main() {
 	defer tc.Close()
 
 	go func() {
-		if err := tc.Receive(ctx); err != nil {
+		if err := tc.Receive(); err != nil {
 			log.Fatal(err)
 		}
 		stop()
 	}()
 
 	go func() {
-		if err := tc.Send(ctx); err != nil {
+		if err := tc.Send(); err != nil {
 			log.Fatal(err)
 		}
 		stop()

@@ -18,8 +18,8 @@ var (
 type TelnetClient interface {
 	Connect(context.Context) error
 	io.Closer
-	Send(context.Context) error
-	Receive(context.Context) error
+	Send() error
+	Receive() error
 }
 
 func NewTelnetClient(address string, timeout time.Duration, in io.ReadCloser, out io.Writer) TelnetClient {
@@ -49,52 +49,31 @@ func (tc *telnetClient) Connect(ctx context.Context) error {
 	return nil
 }
 
-func (tc *telnetClient) Send(ctx context.Context) error {
+func (tc *telnetClient) Send() error {
 	if tc.conn == nil {
 		return ErrNoConnection
 	}
 
-	var err error
-OUTER:
-	for {
-		select {
-		case <-ctx.Done():
-			break OUTER
-		default:
-			if _, err = io.Copy(tc.conn, tc.in); err != nil {
-				break OUTER
-			}
-		}
+	if _, err := io.Copy(tc.conn, tc.in); err != nil {
+		return ErrWrite
 	}
 
-	return err
+	return nil
 }
 
-func (tc *telnetClient) Receive(ctx context.Context) error {
+func (tc *telnetClient) Receive() error {
 	if tc.conn == nil {
 		return ErrNoConnection
 	}
 
-	var err error
-
-OUTER:
-	for {
-		select {
-		case <-ctx.Done():
-			break OUTER
-		default:
-			if _, errCopy := io.Copy(tc.out, tc.conn); errCopy != nil {
-				if errors.Is(errCopy, io.EOF) {
-					err = ErrClosedConnection
-				} else {
-					err = errCopy
-				}
-				break OUTER
-			}
+	if _, errCopy := io.Copy(tc.out, tc.conn); errCopy != nil {
+		if errors.Is(errCopy, io.EOF) {
+			return ErrClosedConnection
 		}
+		return errCopy
 	}
 
-	return err
+	return nil
 }
 
 func (tc *telnetClient) Close() error {
