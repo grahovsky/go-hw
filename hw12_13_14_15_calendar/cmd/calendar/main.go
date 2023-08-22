@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/app"
+	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/config"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/logger"
 	internalhttp "github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/server/http"
 	memorystorage "github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/storage/memory"
@@ -17,7 +18,7 @@ import (
 var configFile string
 
 func init() {
-	flag.StringVar(&configFile, "config", "/etc/calendar/config.toml", "Path to configuration file")
+	flag.StringVar(&configFile, "config", "/etc/calendar/config.yaml", "Path to configuration file")
 }
 
 func main() {
@@ -28,8 +29,9 @@ func main() {
 		return
 	}
 
-	config := NewConfig()
-	logg := logger.New(config.Logger.Level)
+	_ = config.New(configFile)
+	logg := logger.New(config.Settings.Log.Level)
+	logger.DefaultLog.Debug(config.Settings.Some)
 
 	storage := memorystorage.New()
 	calendar := app.New(logg, storage)

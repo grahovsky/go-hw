@@ -1,3 +1,13 @@
 module github.com/grahovsky/go-hw/hw12_13_14_15_calendar
 
-go 1.19
+go 1.20
+
+require (
+	go.uber.org/zap v1.24.0
+	gopkg.in/yaml.v3 v3.0.1
+)
+
+require (
+	go.uber.org/atomic v1.7.0 // indirect
+	go.uber.org/multierr v1.6.0 // indirect
+)

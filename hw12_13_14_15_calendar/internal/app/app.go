@@ -2,6 +2,8 @@ package app
 
 import (
 	"context"
+
+	logg "github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/logger"
 )
 
 type App struct { // TODO
@@ -14,6 +16,7 @@ type Storage interface { // TODO
 }
 
 func New(logger Logger, storage Storage) *App {
+	logg.DefaultLog.Info("app start")
 	return &App{}
 }
 
