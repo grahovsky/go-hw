@@ -1,3 +1,4 @@
 log:
-  level: "DEBUG"
-some: "some"
+  level: "INFO"
+debugMessage: "debug message"
+some: "some2"

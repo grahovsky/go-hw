@@ -6,37 +6,37 @@ import (
 
 type Logger struct {
 	core  *zap.Logger
-	LEVEL string
+	level string
 }
 
-var DefaultLog *Logger
+var myLog *Logger
 
 func init() {
-	DefaultLog = &Logger{core: zap.Must(zap.NewDevelopment()), LEVEL: "INFO"}
-	DefaultLog.Info("inited logger")
+	myLog = &Logger{core: zap.Must(zap.NewDevelopment()), level: "INFO"}
 }
 
-func New(level string) *Logger {
-	DefaultLog = &Logger{core: zap.Must(zap.NewDevelopment()), LEVEL: level}
-	return DefaultLog
+func SetLogLevel(level string) {
+	myLog.level = level
 }
 
-func (l Logger) Info(msg string) {
-	l.core.Info(msg)
+func GetLogger() *Logger {
+	return myLog
 }
 
-func (l Logger) Debug(msg string) {
-	if l.LEVEL == "DEBUG" {
-		l.core.Debug(msg)
+func Info(msg string) {
+	myLog.core.Info(msg)
+}
+
+func Debug(msg string) {
+	if myLog.level == "DEBUG" {
+		myLog.core.Debug(msg)
 	}
 }
 
-func (l Logger) Error(msg string) {
-	l.core.Error(msg)
+func Error(msg string) {
+	myLog.core.Error(msg)
 }
 
-func (l Logger) Fatal(msg string) {
-	l.core.Fatal(msg)
+func Fatal(msg string) {
+	myLog.core.Fatal(msg)
 }
-
-// TODO
