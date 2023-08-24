@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"flag"
 	"os"
 	"os/signal"
 	"syscall"
@@ -15,23 +14,13 @@ import (
 	memorystorage "github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/storage/memory"
 )
 
-var configFile string
-
-func init() {
-	flag.StringVar(&configFile, "config", "/etc/calendar/config.yaml", "Path to configuration file")
-}
-
 func main() {
-	flag.Parse()
-
-	if flag.Arg(0) == "version" {
-		printVersion()
+	if config.Settings.PrintVersion {
+		PrintVersion()
 		return
 	}
 
-	config.Read(configFile)
 	logger.SetLogLevel(config.Settings.Log.Level)
-
 	logger.Debug(config.Settings.DebugMessage)
 
 	storage := memorystorage.New()

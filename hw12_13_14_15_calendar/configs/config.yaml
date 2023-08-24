@@ -1,4 +1,4 @@
 log:
   level: "INFO"
-debugMessage: "debug message"
+debugMessage: "debug message test"
 some: "some2"
