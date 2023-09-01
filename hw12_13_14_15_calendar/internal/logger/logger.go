@@ -24,7 +24,9 @@ func GetLogger() *Logger {
 }
 
 func Info(msg string) {
-	myLog.core.Info(msg)
+	if myLog.level == "DEBUG" || myLog.level == "INFO" {
+		myLog.core.Info(msg)
+	}
 }
 
 func Debug(msg string) {

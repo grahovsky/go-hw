@@ -23,7 +23,7 @@ func init() {
 
 	versionFlag := pflag.Bool("version", false, "version app")
 	pflag.String("loglevel", "INFO", "log level app")
-	pflag.String("config", "/etc/calendar/config.yaml", "Path to configuration file")
+	pflag.String("config", "configs/config.yaml", "Path to configuration file")
 	pflag.Parse()
 
 	if *versionFlag {

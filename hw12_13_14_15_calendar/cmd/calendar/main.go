@@ -11,6 +11,7 @@ import (
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/config"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/logger"
 	internalhttp "github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/server/http"
+	storage "github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/storage"
 	memorystorage "github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/storage/memory"
 )
 
@@ -23,14 +24,20 @@ func main() {
 	logger.SetLogLevel(config.Settings.Log.Level)
 	logger.Debug(config.Settings.DebugMessage)
 
-	storage := memorystorage.New()
-	calendar := app.New(storage)
+	used_storage := memorystorage.New()
+	calendar := app.New(used_storage)
 
 	server := internalhttp.NewServer(calendar)
 
 	ctx, cancel := signal.NotifyContext(context.Background(),
 		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 	defer cancel()
+
+	event := storage.Event{
+		ID: "111",
+	}
+	used_storage.AddEvent(ctx, event)
+	println(used_storage.GetSortedEventsById("11").ID)
 
 	go func() {
 		<-ctx.Done()
