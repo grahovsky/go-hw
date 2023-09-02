@@ -2,6 +2,7 @@ package storage
 
 import (
 	"errors"
+	"fmt"
 	"time"
 )
 
@@ -16,3 +17,7 @@ type Event struct {
 }
 
 var ErrEventID = errors.New("Event ID is not correct")
+
+func (e Event) String() string {
+	return fmt.Sprintf("%v %v", e.ID, e.Title)
+}

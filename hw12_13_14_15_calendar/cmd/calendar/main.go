@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -11,8 +12,9 @@ import (
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/config"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/logger"
 	internalhttp "github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/server/http"
-	storage "github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/storage"
+	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/storage"
 	memorystorage "github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/storage/memory"
+	sqlstorage "github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/storage/sql"
 )
 
 func main() {
@@ -24,7 +26,15 @@ func main() {
 	logger.SetLogLevel(config.Settings.Log.Level)
 	logger.Debug(config.Settings.DebugMessage)
 
-	used_storage := memorystorage.New()
+	var used_storage app.Storage
+
+	if config.Settings.Storage.Type == "sql" {
+		used_storage = &sqlstorage.Storage{}
+	} else {
+		used_storage = &memorystorage.Storage{}
+	}
+	used_storage.Create()
+
 	calendar := app.New(used_storage)
 
 	server := internalhttp.NewServer(calendar)
@@ -37,7 +47,9 @@ func main() {
 		ID: "111",
 	}
 	used_storage.AddEvent(ctx, event)
-	println(used_storage.GetSortedEventsById("11").ID)
+	calendar.CreateEvent(ctx, "222", "some title")
+	fmt.Println(used_storage.GetSortedEventsById("111"))
+	fmt.Println(used_storage.GetSortedEventsById("222"))
 
 	go func() {
 		<-ctx.Done()

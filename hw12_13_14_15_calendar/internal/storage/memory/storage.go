@@ -21,10 +21,8 @@ type (
 	}
 )
 
-func New() *Storage {
-	return &Storage{
-		events: make(Events),
-	}
+func (s *Storage) Create() {
+	s.events = make(Events)
 }
 
 func (s *Storage) AddEvent(ctx context.Context, event storage.Event) error {

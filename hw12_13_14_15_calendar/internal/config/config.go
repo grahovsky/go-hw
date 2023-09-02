@@ -10,6 +10,9 @@ type Config struct {
 	Log struct {
 		Level string `mapstructure:"level" env:"LOG_LEVEL"`
 	} `mapstructure:"log"`
+	Storage struct {
+		Type string `mapstructure:"type" env:"STORAGE_TYPE"`
+	} `mapstructure:"storage"`
 	DebugMessage string `mapstructure:"debugMessage"`
 	Some         string `mapstructure:"some"`
 	PrintVersion bool
@@ -23,7 +26,7 @@ func init() {
 
 	versionFlag := pflag.Bool("version", false, "version app")
 	pflag.String("loglevel", "INFO", "log level app")
-	pflag.String("config", "configs/config.yaml", "Path to configuration file")
+	pflag.String("config", "./configs/config.yaml", "Path to configuration file")
 	pflag.Parse()
 
 	if *versionFlag {

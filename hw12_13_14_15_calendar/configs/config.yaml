@@ -1,4 +1,6 @@
 log:
   level: "INFO"
+storage:
+  type: "inmemory"
 debugMessage: "debug message test"
 some: "some2"
