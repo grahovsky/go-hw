@@ -25,7 +25,7 @@ func (s *Storage) Create() {
 	s.events = make(Events)
 }
 
-func (s *Storage) AddEvent(ctx context.Context, event storage.Event) error {
+func (s *Storage) AddEvent(ctx context.Context, event *storage.Event) error {
 	select {
 	case <-ctx.Done():
 		return ctx.Err()
@@ -35,7 +35,7 @@ func (s *Storage) AddEvent(ctx context.Context, event storage.Event) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	s.events[event.ID] = event
+	s.events[event.ID] = *event
 
 	return nil
 }
@@ -58,7 +58,7 @@ func (store *Storage) DeleteEvent(id string) error {
 	return nil
 }
 
-func (s *Storage) GetSortedEventsById(id string) storage.Event {
+func (s *Storage) GetEventsById(id string) storage.Event {
 	if id == "" {
 		return storage.Event{}
 	}

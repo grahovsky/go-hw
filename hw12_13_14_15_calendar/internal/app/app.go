@@ -13,17 +13,23 @@ type App struct { // TODO
 
 /* change to package use
 type Logger interface {
+	Error()
+	Warn()
 	Info()
 	Debug()
-	Error()
-	Fatal()
 }
 */
 
 type Storage interface { // TODO
 	Create()
-	AddEvent(ctx context.Context, event storage.Event) error
-	GetSortedEventsById(id string) storage.Event
+	AddEvent(ctx context.Context, event *storage.Event) error
+	// UpdateEvent(ctx context.Context, event *storage.Event) error
+	// DeleteEvent(context.Context, string) error
+	// GetEventByDay(context.Context, int64, time.Time) ([]storage.Event, error)
+	// GetEventByWeek(context.Context, int64, time.Time) ([]storage.Event, error)
+	// GetEventByMonth(context.Context, int64, time.Time)
+
+	GetEventsById(id string) storage.Event
 }
 
 func New(storage Storage) *App {
@@ -31,9 +37,9 @@ func New(storage Storage) *App {
 	return &App{storage: storage}
 }
 
-func (a *App) CreateEvent(ctx context.Context, id, title string) error {
+func (a *App) CreateEvent(ctx context.Context, event *storage.Event) error {
 	// TODO
-	return a.storage.AddEvent(ctx, storage.Event{ID: id, Title: title})
+	return a.storage.AddEvent(ctx, event)
 }
 
 // TODO

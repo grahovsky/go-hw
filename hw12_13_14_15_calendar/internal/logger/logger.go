@@ -23,8 +23,18 @@ func GetLogger() *Logger {
 	return myLog
 }
 
+func Error(msg string) {
+	myLog.core.Error(msg)
+}
+
+func Warn(msg string) {
+	if myLog.level == "WARN" || myLog.level == "INFO" || myLog.level == "DEBUG" {
+		myLog.core.Warn(msg)
+	}
+}
+
 func Info(msg string) {
-	if myLog.level == "DEBUG" || myLog.level == "INFO" {
+	if myLog.level == "INFO" || myLog.level == "DEBUG" {
 		myLog.core.Info(msg)
 	}
 }
@@ -33,12 +43,4 @@ func Debug(msg string) {
 	if myLog.level == "DEBUG" {
 		myLog.core.Debug(msg)
 	}
-}
-
-func Error(msg string) {
-	myLog.core.Error(msg)
-}
-
-func Fatal(msg string) {
-	myLog.core.Fatal(msg)
 }

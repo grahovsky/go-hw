@@ -44,12 +44,16 @@ func main() {
 	defer cancel()
 
 	event := storage.Event{
-		ID: "111",
+		ID:          "111",
+		Title:       "first event",
+		DateStart:   time.Date(2023, 9, 3, 22, 0, 0, 0, time.Local),
+		UserID:      1,
+		Description: "some description",
 	}
-	used_storage.AddEvent(ctx, event)
-	calendar.CreateEvent(ctx, "222", "some title")
-	fmt.Println(used_storage.GetSortedEventsById("111"))
-	fmt.Println(used_storage.GetSortedEventsById("222"))
+	used_storage.AddEvent(ctx, &event)
+	calendar.CreateEvent(ctx, &storage.Event{ID: "222", Title: "some title", DateStart: time.Now().Add(5 * time.Hour)})
+	fmt.Println(used_storage.GetEventsById("111"))
+	fmt.Println(used_storage.GetEventsById("222"))
 
 	go func() {
 		<-ctx.Done()

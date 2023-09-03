@@ -41,11 +41,11 @@ func init() {
 	viper.SetEnvPrefix("APP")
 
 	if err := viper.ReadInConfig(); err != nil {
-		logger.Fatal(err.Error())
+		logger.Error(err.Error())
 	}
 
 	if err := viper.Unmarshal(&Settings); err != nil {
-		logger.Fatal(err.Error())
+		logger.Error(err.Error())
 	}
 
 	envLogLevel := viper.Get("LOG_LEVEL")

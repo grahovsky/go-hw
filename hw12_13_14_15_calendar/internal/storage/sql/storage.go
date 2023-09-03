@@ -29,10 +29,10 @@ func (s *Storage) Close(ctx context.Context) error {
 func (s *Storage) Create() {
 }
 
-func (s *Storage) AddEvent(ctx context.Context, event storage.Event) error {
+func (s *Storage) AddEvent(ctx context.Context, event *storage.Event) error {
 	return nil
 }
 
-func (s *Storage) GetSortedEventsById(id string) storage.Event {
+func (s *Storage) GetEventsById(id string) storage.Event {
 	return storage.Event{}
 }
