@@ -35,9 +35,10 @@ func main() {
 	}
 	used_storage.Create()
 
-	calendar := app.New(used_storage)
+	var calendar internalhttp.Application
+	calendar = app.New(used_storage)
 
-	server := internalhttp.NewServer(calendar)
+	server := internalhttp.NewServer(&calendar, "localhost:8080")
 
 	ctx, cancel := signal.NotifyContext(context.Background(),
 		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
