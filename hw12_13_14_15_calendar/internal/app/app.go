@@ -30,6 +30,7 @@ type Storage interface { // TODO
 	// GetEventByWeek(context.Context, int64, time.Time) ([]storage.Event, error)
 	// GetEventByMonth(context.Context, int64, time.Time)
 
+	ListEvents(limit, low uint64) ([]storage.Event, error)
 	GetEvent(id uuid.UUID) (*storage.Event, error)
 }
 

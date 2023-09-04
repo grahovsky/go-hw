@@ -37,3 +37,7 @@ func (s *Storage) AddEvent(ctx context.Context, event *storage.Event) error {
 func (s *Storage) GetEvent(id uuid.UUID) (*storage.Event, error) {
 	return &storage.Event{}, nil
 }
+
+func (s *Storage) ListEvents(limit, low uint64) ([]storage.Event, error) {
+	return []storage.Event{}, nil
+}

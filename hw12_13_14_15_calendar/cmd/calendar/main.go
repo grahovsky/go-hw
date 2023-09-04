@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -56,11 +55,11 @@ func main() {
 	}
 	used_storage.AddEvent(ctx, &newEvent)
 	calendar.CreateEvent(ctx, &storage.Event{ID: uuid.New(), Title: "some title", DateStart: time.Now().Add(5 * time.Hour)})
-	if event, err := used_storage.GetEvent(uid); err == nil {
-		fmt.Println(event)
-	}
-	if event, err := used_storage.GetEvent(uuid.New()); err == nil {
-		fmt.Println(event)
+
+	if events, err := used_storage.ListEvents(10, 0); err == nil {
+		for _, event := range events {
+			logger.Info(event.String())
+		}
 	}
 
 	go func() {

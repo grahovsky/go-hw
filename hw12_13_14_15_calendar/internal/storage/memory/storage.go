@@ -2,6 +2,7 @@ package memorystorage
 
 import (
 	"context"
+	"sort"
 	"sync"
 
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/logger"
@@ -51,6 +52,24 @@ func (s *Storage) DeleteEvent(id uuid.UUID) error {
 	return nil
 }
 
+func (s *Storage) ListEvents(limit, low uint64) ([]storage.Event, error) {
+	events := make([]storage.Event, 0, len(s.events))
+
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	for _, event := range s.events {
+		events = append(events, event)
+	}
+
+	sort.Slice(events, func(i, j int) bool {
+		return events[i].DateStart.Before(events[j].DateStart)
+	})
+
+	high := min(low+limit, uint64(len(events)))
+	return events[low:high], nil
+}
+
 func (s *Storage) GetEvent(id uuid.UUID) (*storage.Event, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -68,4 +87,11 @@ func (s *Storage) GetEvent(id uuid.UUID) (*storage.Event, error) {
 func (s *Storage) contains(id uuid.UUID) bool {
 	_, ok := s.events[id]
 	return ok
+}
+
+func min(x, y uint64) uint64 {
+	if x < y {
+		return x
+	}
+	return y
 }
