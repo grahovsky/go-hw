@@ -47,14 +47,21 @@ func main() {
 	newEvent := storage.Event{
 		ID:          uid,
 		Title:       "first event",
-		DateStart:   time.Date(2023, 9, 3, 22, 0, 0, 0, time.Local),
+		DateStart:   time.Date(2023, 9, 4, 22, 0, 0, 0, time.Local),
+		DateEnd:     time.Date(2023, 9, 4, 23, 40, 0, 0, time.Local),
 		UserID:      uuid.New(),
 		Description: "some description",
 	}
 	used_storage.AddEvent(ctx, &newEvent)
-	calendar.CreateEvent(ctx, &storage.Event{ID: uuid.New(), Title: "some title", DateStart: time.Now().Add(5 * time.Hour)})
+	calendar.CreateEvent(ctx, &storage.Event{ID: uuid.New(), Title: "some title", DateStart: time.Now().Add(4 * time.Hour), DateEnd: time.Now().Add(5 * time.Hour)})
 
 	if events, err := used_storage.ListEvents(ctx, 10, 0); err == nil {
+		for _, event := range events {
+			logger.Info(event.String())
+		}
+	}
+
+	if events, err := used_storage.GetEventsForPeriod(ctx, time.Date(2023, 9, 4, 23, 0, 0, 0, time.Local), time.Date(2023, 9, 4, 23, 59, 0, 0, time.Local)); err == nil {
 		for _, event := range events {
 			logger.Info(event.String())
 		}

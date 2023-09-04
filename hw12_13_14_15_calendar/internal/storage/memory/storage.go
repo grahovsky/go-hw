@@ -4,6 +4,7 @@ import (
 	"context"
 	"sort"
 	"sync"
+	"time"
 
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/logger"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/storage"
@@ -47,6 +48,24 @@ func (s *Storage) GetEvent(_ context.Context, id uuid.UUID) (*storage.Event, err
 	event, _ := s.events[id]
 
 	return &event, nil
+}
+
+func (s *Storage) GetEventsForPeriod(_ context.Context, from, to time.Time) ([]storage.Event, error) {
+	events := make([]storage.Event, 0, len(s.events))
+
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	for _, event := range s.events {
+		if event.InPeriod(from, to) {
+			events = append(events, event)
+		}
+	}
+	sort.Slice(events, func(i, j int) bool {
+		return events[i].DateStart.Before(events[j].DateStart)
+	})
+
+	return events, nil
 }
 
 func (s *Storage) ListEvents(_ context.Context, limit, low uint64) ([]storage.Event, error) {

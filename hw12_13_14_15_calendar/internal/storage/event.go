@@ -25,6 +25,10 @@ var (
 	ErrEventAlreadyExists = errors.New("Event already exists")
 )
 
-func (e Event) String() string {
+func (e *Event) String() string {
 	return fmt.Sprintf("%v %v %v", e.ID, e.Title, e.DateStart)
+}
+
+func (e *Event) InPeriod(from time.Time, to time.Time) bool {
+	return e.DateStart.Before(to) && !e.DateEnd.Before(from)
 }
