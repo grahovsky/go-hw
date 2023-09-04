@@ -12,12 +12,12 @@ import (
 )
 
 type Application interface {
-	CreateEvent(context.Context, *storage.Event) error
-	// UpdateEvent(context.Context, app.Event) error
-	// DeleteEvent(context.Context, string) error
-	// GetEventByDay(context.Context, int64, time.Time) ([]app.Event, error)
-	// GetEventByWeek(context.Context, int64, time.Time) ([]app.Event, error)
-	// GetEventByMonth(context.Context, int64, time.Time) ([]app.Event, error)
+	AddEvent(context.Context, *storage.Event) error
+	// GetEvent(ctx context.Context, id uuid.UUID) (*storage.Event, error)
+	// GetEventsForPeriod(ctx context.Context, from, to time.Time) ([]storage.Event, error)
+	// ListEvents(ctx context.Context, limit, low uint64) ([]storage.Event, error)
+	// UpdateEvent(ctx context.Context, event *storage.Event) error
+	// DeleteEvent(ctx context.Context, id uuid.UUID) error
 }
 
 type Server struct {

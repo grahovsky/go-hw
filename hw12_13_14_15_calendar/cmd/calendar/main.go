@@ -53,7 +53,7 @@ func main() {
 		Description: "some description",
 	}
 	used_storage.AddEvent(ctx, &newEvent)
-	calendar.CreateEvent(ctx, &storage.Event{ID: uuid.New(), Title: "some title", DateStart: time.Now().Add(4 * time.Hour), DateEnd: time.Now().Add(5 * time.Hour)})
+	calendar.AddEvent(ctx, &storage.Event{ID: uuid.New(), Title: "some title", DateStart: time.Now().Add(4 * time.Hour), DateEnd: time.Now().Add(5 * time.Hour)})
 
 	if events, err := used_storage.ListEvents(ctx, 10, 0); err == nil {
 		for _, event := range events {

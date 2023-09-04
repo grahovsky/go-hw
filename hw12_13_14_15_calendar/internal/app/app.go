@@ -9,11 +9,11 @@ import (
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/storage"
 )
 
-type App struct { // TODO
+type App struct {
 	storage Storage
 }
 
-type Storage interface { // TODO
+type Storage interface {
 	InitStorage(ctx context.Context)
 	AddEvent(ctx context.Context, event *storage.Event) error
 	GetEvent(ctx context.Context, id uuid.UUID) (*storage.Event, error)
@@ -28,7 +28,7 @@ func New(storage Storage) *App {
 	return &App{storage: storage}
 }
 
-func (a *App) CreateEvent(ctx context.Context, event *storage.Event) error {
+func (a *App) AddEvent(ctx context.Context, event *storage.Event) error {
 	// TODO
 	return a.storage.AddEvent(ctx, event)
 }
