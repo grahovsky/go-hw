@@ -26,23 +26,21 @@ func main() {
 	logger.SetLogLevel(config.Settings.Log.Level)
 	logger.Debug(config.Settings.DebugMessage)
 
-	var used_storage app.Storage
+	ctx, cancel := signal.NotifyContext(context.Background(),
+		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
+	defer cancel()
 
+	var used_storage app.Storage
 	if config.Settings.Storage.Type == "sql" {
 		used_storage = &sqlstorage.Storage{}
 	} else {
 		used_storage = &memorystorage.Storage{}
 	}
-	used_storage.InitStorage()
+	used_storage.InitStorage(ctx)
 
 	var calendar internalhttp.Application
 	calendar = app.New(used_storage)
-
 	server := internalhttp.NewServer(&calendar, "localhost:8080")
-
-	ctx, cancel := signal.NotifyContext(context.Background(),
-		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
-	defer cancel()
 
 	uid := uuid.New()
 
@@ -56,7 +54,7 @@ func main() {
 	used_storage.AddEvent(ctx, &newEvent)
 	calendar.CreateEvent(ctx, &storage.Event{ID: uuid.New(), Title: "some title", DateStart: time.Now().Add(5 * time.Hour)})
 
-	if events, err := used_storage.ListEvents(10, 0); err == nil {
+	if events, err := used_storage.ListEvents(ctx, 10, 0); err == nil {
 		for _, event := range events {
 			logger.Info(event.String())
 		}

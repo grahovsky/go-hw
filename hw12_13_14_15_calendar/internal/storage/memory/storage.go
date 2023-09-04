@@ -20,16 +20,15 @@ type (
 	}
 )
 
-func (s *Storage) InitStorage() {
+func (s *Storage) InitStorage(_ context.Context) {
 	s.events = make(Events)
 }
 
-func (s *Storage) AddEvent(ctx context.Context, event *storage.Event) error {
+func (s *Storage) AddEvent(_ context.Context, event *storage.Event) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	if s.contains(event.ID) {
-		logger.Error(storage.ErrEventAlreadyExists.Error())
 		return storage.ErrEventAlreadyExists
 	}
 
@@ -37,22 +36,20 @@ func (s *Storage) AddEvent(ctx context.Context, event *storage.Event) error {
 	return nil
 }
 
-func (s *Storage) DeleteEvent(id uuid.UUID) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+func (s *Storage) GetEvent(_ context.Context, id uuid.UUID) (*storage.Event, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 
 	if id == uuid.Nil || !s.contains(id) {
-		logger.Error(storage.ErrEventID.Error())
-		return storage.ErrEventID
+		return &storage.Event{}, storage.ErrEventID
 	}
 
-	delete(s.events, id)
-	logger.Info("Delete event with ID: " + id.String())
+	event, _ := s.events[id]
 
-	return nil
+	return &event, nil
 }
 
-func (s *Storage) ListEvents(limit, low uint64) ([]storage.Event, error) {
+func (s *Storage) ListEvents(_ context.Context, limit, low uint64) ([]storage.Event, error) {
 	events := make([]storage.Event, 0, len(s.events))
 
 	s.mu.RLock()
@@ -70,18 +67,29 @@ func (s *Storage) ListEvents(limit, low uint64) ([]storage.Event, error) {
 	return events[low:high], nil
 }
 
-func (s *Storage) GetEvent(id uuid.UUID) (*storage.Event, error) {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
+func (s *Storage) UpdateEvent(_ context.Context, event *storage.Event) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if !s.contains(event.ID) {
+		return storage.ErrEventNotFound
+	}
+	s.events[event.ID] = *event
+	return nil
+}
+
+func (s *Storage) DeleteEvent(_ context.Context, id uuid.UUID) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 
 	if id == uuid.Nil || !s.contains(id) {
-		logger.Error(storage.ErrEventID.Error())
-		return &storage.Event{}, storage.ErrEventID
+		return storage.ErrEventID
 	}
 
-	event, _ := s.events[id]
+	delete(s.events, id)
+	logger.Info("Delete event with ID: " + id.String())
 
-	return &event, nil
+	return nil
 }
 
 func (s *Storage) contains(id uuid.UUID) bool {

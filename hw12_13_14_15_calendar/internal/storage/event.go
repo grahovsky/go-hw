@@ -20,6 +20,7 @@ type Event struct {
 
 var (
 	ErrEventID            = errors.New("Event ID is not correct")
+	ErrEventNotFound      = errors.New("Event not found")
 	ErrDateBusy           = errors.New("Event Date is bussy")
 	ErrEventAlreadyExists = errors.New("Event already exists")
 )

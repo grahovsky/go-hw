@@ -12,26 +12,13 @@ type App struct { // TODO
 	storage Storage
 }
 
-/* change to package use
-type Logger interface {
-	Error()
-	Warn()
-	Info()
-	Debug()
-}
-*/
-
 type Storage interface { // TODO
-	InitStorage()
+	InitStorage(ctx context.Context)
 	AddEvent(ctx context.Context, event *storage.Event) error
-	// UpdateEvent(ctx context.Context, event *storage.Event) error
-	// DeleteEvent(context.Context, string) error
-	// GetEventByDay(context.Context, int64, time.Time) ([]storage.Event, error)
-	// GetEventByWeek(context.Context, int64, time.Time) ([]storage.Event, error)
-	// GetEventByMonth(context.Context, int64, time.Time)
-
-	ListEvents(limit, low uint64) ([]storage.Event, error)
-	GetEvent(id uuid.UUID) (*storage.Event, error)
+	GetEvent(ctx context.Context, id uuid.UUID) (*storage.Event, error)
+	ListEvents(ctx context.Context, limit, low uint64) ([]storage.Event, error)
+	UpdateEvent(ctx context.Context, event *storage.Event) error
+	DeleteEvent(ctx context.Context, id uuid.UUID) error
 }
 
 func New(storage Storage) *App {
