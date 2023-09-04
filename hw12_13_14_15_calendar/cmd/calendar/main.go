@@ -47,17 +47,21 @@ func main() {
 
 	uid := uuid.New()
 
-	event := storage.Event{
+	newEvent := storage.Event{
 		ID:          uid,
 		Title:       "first event",
 		DateStart:   time.Date(2023, 9, 3, 22, 0, 0, 0, time.Local),
 		UserID:      uuid.New(),
 		Description: "some description",
 	}
-	used_storage.AddEvent(ctx, &event)
+	used_storage.AddEvent(ctx, &newEvent)
 	calendar.CreateEvent(ctx, &storage.Event{ID: uuid.New(), Title: "some title", DateStart: time.Now().Add(5 * time.Hour)})
-	fmt.Println(used_storage.GetEventsById(uid))
-	fmt.Println(used_storage.GetEventsById(uuid.New()))
+	if event, err := used_storage.GetEvent(uid); err == nil {
+		fmt.Println(event)
+	}
+	if event, err := used_storage.GetEvent(uuid.New()); err == nil {
+		fmt.Println(event)
+	}
 
 	go func() {
 		<-ctx.Done()

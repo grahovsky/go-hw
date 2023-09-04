@@ -24,16 +24,11 @@ func (s *Storage) InitStorage() {
 }
 
 func (s *Storage) AddEvent(ctx context.Context, event *storage.Event) error {
-	select {
-	case <-ctx.Done():
-		return ctx.Err()
-	default:
-	}
-
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	if s.contains(event.ID) {
+		logger.Error(storage.ErrEventAlreadyExists.Error())
 		return storage.ErrEventAlreadyExists
 	}
 
@@ -41,30 +36,33 @@ func (s *Storage) AddEvent(ctx context.Context, event *storage.Event) error {
 	return nil
 }
 
-func (store *Storage) DeleteEvent(id uuid.UUID) error {
-	store.mu.Lock()
-	defer store.mu.Unlock()
+func (s *Storage) DeleteEvent(id uuid.UUID) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 
-	if id == uuid.Nil {
+	if id == uuid.Nil || !s.contains(id) {
 		logger.Error(storage.ErrEventID.Error())
 		return storage.ErrEventID
 	}
 
-	if _, ok := store.events[id]; ok {
-		delete(store.events, id)
-	}
-
+	delete(s.events, id)
 	logger.Info("Delete event with ID: " + id.String())
 
 	return nil
 }
 
-func (s *Storage) GetEventsById(id uuid.UUID) storage.Event {
-	if id == uuid.Nil {
-		return storage.Event{}
+func (s *Storage) GetEvent(id uuid.UUID) (*storage.Event, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	if id == uuid.Nil || !s.contains(id) {
+		logger.Error(storage.ErrEventID.Error())
+		return &storage.Event{}, storage.ErrEventID
 	}
 
-	return s.events[id]
+	event, _ := s.events[id]
+
+	return &event, nil
 }
 
 func (s *Storage) contains(id uuid.UUID) bool {

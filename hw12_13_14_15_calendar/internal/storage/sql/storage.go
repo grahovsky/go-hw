@@ -34,6 +34,6 @@ func (s *Storage) AddEvent(ctx context.Context, event *storage.Event) error {
 	return nil
 }
 
-func (s *Storage) GetEventsById(id uuid.UUID) storage.Event {
-	return storage.Event{}
+func (s *Storage) GetEvent(id uuid.UUID) (*storage.Event, error) {
+	return &storage.Event{}, nil
 }

@@ -30,7 +30,7 @@ type Storage interface { // TODO
 	// GetEventByWeek(context.Context, int64, time.Time) ([]storage.Event, error)
 	// GetEventByMonth(context.Context, int64, time.Time)
 
-	GetEventsById(id uuid.UUID) storage.Event
+	GetEvent(id uuid.UUID) (*storage.Event, error)
 }
 
 func New(storage Storage) *App {
