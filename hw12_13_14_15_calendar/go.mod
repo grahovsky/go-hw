@@ -3,6 +3,9 @@ module github.com/grahovsky/go-hw/hw12_13_14_15_calendar
 go 1.20
 
 require (
+	github.com/go-chi/chi v1.5.4
+	github.com/go-chi/render v1.0.3
+	github.com/google/uuid v1.3.1
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.16.0
 	go.uber.org/zap v1.24.0
@@ -11,8 +14,6 @@ require (
 require (
 	github.com/ajg/form v1.5.1 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
-	github.com/go-chi/chi v1.5.4 // indirect
-	github.com/go-chi/render v1.0.3 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect

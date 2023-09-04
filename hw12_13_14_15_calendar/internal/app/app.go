@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/logger"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/storage"
 )
@@ -21,7 +22,7 @@ type Logger interface {
 */
 
 type Storage interface { // TODO
-	Create()
+	InitStorage()
 	AddEvent(ctx context.Context, event *storage.Event) error
 	// UpdateEvent(ctx context.Context, event *storage.Event) error
 	// DeleteEvent(context.Context, string) error
@@ -29,7 +30,7 @@ type Storage interface { // TODO
 	// GetEventByWeek(context.Context, int64, time.Time) ([]storage.Event, error)
 	// GetEventByMonth(context.Context, int64, time.Time)
 
-	GetEventsById(id string) storage.Event
+	GetEventsById(id uuid.UUID) storage.Event
 }
 
 func New(storage Storage) *App {

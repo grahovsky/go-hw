@@ -8,6 +8,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/app"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/config"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/logger"
@@ -33,7 +34,7 @@ func main() {
 	} else {
 		used_storage = &memorystorage.Storage{}
 	}
-	used_storage.Create()
+	used_storage.InitStorage()
 
 	var calendar internalhttp.Application
 	calendar = app.New(used_storage)
@@ -44,17 +45,19 @@ func main() {
 		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 	defer cancel()
 
+	uid := uuid.New()
+
 	event := storage.Event{
-		ID:          "111",
+		ID:          uid,
 		Title:       "first event",
 		DateStart:   time.Date(2023, 9, 3, 22, 0, 0, 0, time.Local),
-		UserID:      1,
+		UserID:      uuid.New(),
 		Description: "some description",
 	}
 	used_storage.AddEvent(ctx, &event)
-	calendar.CreateEvent(ctx, &storage.Event{ID: "222", Title: "some title", DateStart: time.Now().Add(5 * time.Hour)})
-	fmt.Println(used_storage.GetEventsById("111"))
-	fmt.Println(used_storage.GetEventsById("222"))
+	calendar.CreateEvent(ctx, &storage.Event{ID: uuid.New(), Title: "some title", DateStart: time.Now().Add(5 * time.Hour)})
+	fmt.Println(used_storage.GetEventsById(uid))
+	fmt.Println(used_storage.GetEventsById(uuid.New()))
 
 	go func() {
 		<-ctx.Done()

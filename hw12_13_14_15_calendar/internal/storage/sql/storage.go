@@ -3,6 +3,7 @@ package sqlstorage
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/storage"
 )
 
@@ -26,13 +27,13 @@ func (s *Storage) Close(ctx context.Context) error {
 	return nil
 }
 
-func (s *Storage) Create() {
+func (s *Storage) InitStorage() {
 }
 
 func (s *Storage) AddEvent(ctx context.Context, event *storage.Event) error {
 	return nil
 }
 
-func (s *Storage) GetEventsById(id string) storage.Event {
+func (s *Storage) GetEventsById(id uuid.UUID) storage.Event {
 	return storage.Event{}
 }
