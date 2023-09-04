@@ -3,12 +3,11 @@ package internalhttp
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
-	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/middleware"
-	"github.com/go-chi/render"
+	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/logger"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/storage"
 )
 
@@ -27,12 +26,14 @@ type Server struct {
 }
 
 func NewServer(app *Application, addr string) *Server {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/hello", SayHello())
+
 	srv := &http.Server{
 		Addr:        addr,
 		ReadTimeout: 5 * time.Second,
+		Handler:     loggingMiddleware(mux),
 	}
-
-	srv.Handler = initRoutes()
 
 	return &Server{
 		app: app,
@@ -53,20 +54,10 @@ func (s *Server) Stop(ctx context.Context) error {
 	return s.srv.Shutdown(ctx)
 }
 
-func initRoutes() http.Handler {
-	router := chi.NewRouter()
-
-	router.Use(middleware.RequestID)
-	router.Use(middleware.Recoverer)
-	router.Use(loggingMiddleware())
-
-	router.Get("/hello", SayHello())
-
-	return router
-}
-
 func SayHello() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		render.JSON(w, r, "hello world")
+		if _, err := w.Write([]byte("Hello World!\n")); err != nil {
+			logger.Error(fmt.Sprintf("failed to write response: %v", err))
+		}
 	}
 }
