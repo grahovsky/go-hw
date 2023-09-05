@@ -9,7 +9,7 @@ CREATE TABLE "public"."events" (
     "user_id" uuid NULL,
     "description" text NOT NULL,
     "date_notification" timestamp,
-    CONSTRAINT "events_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "events_pkey" PRIMARY KEY ("id"),
     CONSTRAINT "valid_period"            CHECK (date_start < date_end),
     CONSTRAINT "valid_date_notification" CHECK (date_notification <= date_start)
 ) WITH (oids = false);
@@ -19,7 +19,7 @@ CREATE INDEX events_date_start_idx ON events (date_start);
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE events;
-
 DROP INDEX events_date_start_idx;
+
+DROP TABLE events;
 -- +goose StatementEnd
