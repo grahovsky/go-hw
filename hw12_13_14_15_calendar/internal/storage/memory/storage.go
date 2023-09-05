@@ -25,6 +25,13 @@ func (s *Storage) InitStorage(_ context.Context) {
 	s.events = make(Events)
 }
 
+func (s *Storage) Close(_ context.Context) error {
+	for u := range s.events {
+		delete(s.events, u)
+	}
+	return nil
+}
+
 func (s *Storage) AddEvent(_ context.Context, event *storage.Event) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()

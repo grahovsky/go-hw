@@ -37,6 +37,7 @@ func main() {
 		used_storage = &memorystorage.Storage{}
 	}
 	used_storage.InitStorage(ctx)
+	defer used_storage.Close(ctx)
 
 	var calendar internalhttp.Application
 	calendar = app.New(used_storage)

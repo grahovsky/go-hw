@@ -13,6 +13,12 @@ type Config struct {
 	Storage struct {
 		Type string `mapstructure:"type" env:"STORAGE_TYPE"`
 	} `mapstructure:"storage"`
+	Db struct {
+		Name     string `mapstructure:"name" env:"DB_NAME"`
+		Host     string `mapstructure:"host" env:"DB_HOST"`
+		User     string `mapstructure:"user" env:"DB_USER"`
+		Password string `mapstructure:"password" env:"DB_PASSWORD"`
+	} `mapstructure:"db"`
 	DebugMessage string `mapstructure:"debugMessage"`
 	Some         string `mapstructure:"some"`
 	PrintVersion bool

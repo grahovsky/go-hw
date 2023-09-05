@@ -1,6 +1,11 @@
 log:
   level: "INFO"
 storage:
-  type: "inmemory"
+  type: "sql"
+db:
+  name: "calendar"
+  host: "localhost"
+  user: "postgres"
+  password: "postgres"
 debugMessage: "debug message test"
 some: "some2"

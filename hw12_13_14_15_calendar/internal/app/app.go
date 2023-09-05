@@ -21,6 +21,7 @@ type Storage interface {
 	ListEvents(ctx context.Context, limit, low uint64) ([]storage.Event, error)
 	UpdateEvent(ctx context.Context, event *storage.Event) error
 	DeleteEvent(ctx context.Context, id uuid.UUID) error
+	Close(ctx context.Context) error
 }
 
 func New(storage Storage) *App {
