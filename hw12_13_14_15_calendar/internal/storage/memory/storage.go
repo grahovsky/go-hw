@@ -21,11 +21,11 @@ type (
 	}
 )
 
-func (s *Storage) InitStorage(_ context.Context) {
+func (s *Storage) InitStorage() {
 	s.events = make(Events)
 }
 
-func (s *Storage) Close(_ context.Context) error {
+func (s *Storage) Close() error {
 	for u := range s.events {
 		delete(s.events, u)
 	}

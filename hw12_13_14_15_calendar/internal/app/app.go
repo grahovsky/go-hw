@@ -14,14 +14,14 @@ type App struct {
 }
 
 type Storage interface {
-	InitStorage(ctx context.Context)
+	InitStorage()
 	AddEvent(ctx context.Context, event *storage.Event) error
 	GetEvent(ctx context.Context, id uuid.UUID) (*storage.Event, error)
 	GetEventsForPeriod(ctx context.Context, from, to time.Time) ([]storage.Event, error)
 	ListEvents(ctx context.Context, limit, low uint64) ([]storage.Event, error)
 	UpdateEvent(ctx context.Context, event *storage.Event) error
 	DeleteEvent(ctx context.Context, id uuid.UUID) error
-	Close(ctx context.Context) error
+	Close() error
 }
 
 func New(storage Storage) *App {

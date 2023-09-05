@@ -19,11 +19,11 @@ type Storage struct { // TODO
 	db *sqlx.DB
 }
 
-func (s *Storage) InitStorage(ctx context.Context) {
-	s.Connect(ctx)
+func (s *Storage) InitStorage() {
+	s.Connect()
 }
 
-func (s *Storage) Connect(ctx context.Context) error {
+func (s *Storage) Connect() error {
 	dsn := getDsn()
 	db, err := sqlx.Connect("pgx", dsn)
 	if err != nil {
@@ -46,7 +46,7 @@ func getDsn() string {
 	return dbURL.String()
 }
 
-func (s *Storage) Close(ctx context.Context) error {
+func (s *Storage) Close() error {
 	return s.db.Close()
 }
 
