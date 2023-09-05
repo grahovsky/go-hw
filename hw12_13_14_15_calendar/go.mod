@@ -3,7 +3,7 @@ module github.com/grahovsky/go-hw/hw12_13_14_15_calendar
 go 1.20
 
 require (
-	github.com/google/uuid v1.1.2
+	github.com/google/uuid v1.3.1
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.16.0
 	go.uber.org/zap v1.24.0
