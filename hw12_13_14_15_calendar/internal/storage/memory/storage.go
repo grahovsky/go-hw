@@ -6,17 +6,16 @@ import (
 	"sync"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/logger"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/storage"
-
-	"github.com/google/uuid"
 )
 
 type (
 	Events map[uuid.UUID]storage.Event
 
 	Storage struct {
-		mu     sync.RWMutex //nolint:unused
+		mu     sync.RWMutex
 		events Events
 	}
 )
@@ -52,7 +51,7 @@ func (s *Storage) GetEvent(_ context.Context, id uuid.UUID) (*storage.Event, err
 		return &storage.Event{}, storage.ErrEventID
 	}
 
-	event, _ := s.events[id]
+	event := s.events[id]
 
 	return &event, nil
 }

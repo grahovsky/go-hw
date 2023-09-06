@@ -13,7 +13,7 @@ type Config struct {
 	Storage struct {
 		Type string `mapstructure:"type" env:"STORAGE_TYPE"`
 	} `mapstructure:"storage"`
-	Db struct {
+	DB struct {
 		Name     string `mapstructure:"name" env:"DB_NAME"`
 		Host     string `mapstructure:"host" env:"DB_HOST"`
 		User     string `mapstructure:"user" env:"DB_USER"`

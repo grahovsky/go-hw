@@ -21,11 +21,11 @@ type Application interface {
 }
 
 type Server struct {
-	app *Application
+	app Application
 	srv *http.Server
 }
 
-func NewServer(app *Application, addr string) *Server {
+func NewServer(app Application, addr string) *Server {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/hello", SayHello())
 

@@ -37,9 +37,9 @@ func (s *Storage) Connect() error {
 func getDsn() string {
 	dbURL := &url.URL{
 		Scheme:   "postgres",
-		Host:     config.Settings.Db.Host,
-		User:     url.UserPassword(config.Settings.Db.User, config.Settings.Db.Password),
-		Path:     config.Settings.Db.Name,
+		Host:     config.Settings.DB.Host,
+		User:     url.UserPassword(config.Settings.DB.User, config.Settings.DB.Password),
+		Path:     config.Settings.DB.Name,
 		RawQuery: "sslmode=disable",
 	}
 	logger.Debug(fmt.Sprintf("database: %v", dbURL.String()))

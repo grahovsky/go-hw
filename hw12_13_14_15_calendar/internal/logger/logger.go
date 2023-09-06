@@ -11,8 +11,15 @@ type Logger struct {
 
 var myLog *Logger
 
+const (
+	ErrorLevel = "ERROR"
+	WarnLevel  = "WARN"
+	InfoLevel  = "INFO"
+	DebugLevel = "DEBUG"
+)
+
 func init() {
-	myLog = &Logger{core: zap.Must(zap.NewDevelopment()), level: "INFO"}
+	myLog = &Logger{core: zap.Must(zap.NewDevelopment()), level: InfoLevel}
 }
 
 func SetLogLevel(level string) {
@@ -28,19 +35,19 @@ func Error(msg string) {
 }
 
 func Warn(msg string) {
-	if myLog.level == "WARN" || myLog.level == "INFO" || myLog.level == "DEBUG" {
+	if myLog.level == WarnLevel || myLog.level == InfoLevel || myLog.level == DebugLevel {
 		myLog.core.Warn(msg)
 	}
 }
 
 func Info(msg string) {
-	if myLog.level == "INFO" || myLog.level == "DEBUG" {
+	if myLog.level == InfoLevel || myLog.level == DebugLevel {
 		myLog.core.Info(msg)
 	}
 }
 
 func Debug(msg string) {
-	if myLog.level == "DEBUG" {
+	if myLog.level == DebugLevel {
 		myLog.core.Debug(msg)
 	}
 }

@@ -21,7 +21,16 @@ func loggingMiddleware(next http.Handler) http.Handler {
 		next.ServeHTTP(writer, r)
 
 		statusText := http.StatusText(writer.status)
-		msg := fmt.Sprintf("%v %v %v %v %v %v %v %v", tStart, r.RemoteAddr, r.Method, r.URL.Path, r.Proto, writer.status, statusText, r.UserAgent())
+		msg := fmt.Sprintf("%v %v %v %v %v %v %v %v",
+			tStart,
+			r.RemoteAddr,
+			r.Method,
+			r.URL.Path,
+			r.Proto,
+			writer.status,
+			statusText,
+			r.UserAgent(),
+		)
 		logger.Info(msg)
 	})
 }
