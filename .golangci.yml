@@ -11,6 +11,13 @@ linters-settings:
   gosec:
     excludes:
       - G204
+  depguard:
+      rules:
+        main:
+          deny:
+            - pkg: "io/ioutil"
+              desc: "ioutil is deprecated starting with Go 1.16"
+
 
 issues:
   exclude-rules:
