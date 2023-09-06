@@ -21,84 +21,84 @@ func TestLogger(t *testing.T) {
 			messageLevel: DebugLevel,
 			shouldPrint:  true,
 		},
-		// {
-		// 	loggerLevel:  DebugLevel,
-		// 	messageLevel: InfoLevel,
-		// 	shouldPrint:  true,
-		// },
-		// {
-		// 	loggerLevel:  DebugLevel,
-		// 	messageLevel: WarnLevel,
-		// 	shouldPrint:  true,
-		// },
-		// {
-		// 	loggerLevel:  DebugLevel,
-		// 	messageLevel: ErrorLevel,
-		// 	shouldPrint:  true,
-		// },
-		// // Info
-		// {
-		// 	loggerLevel:  InfoLevel,
-		// 	messageLevel: DebugLevel,
-		// 	shouldPrint:  false,
-		// },
-		// {
-		// 	loggerLevel:  InfoLevel,
-		// 	messageLevel: InfoLevel,
-		// 	shouldPrint:  true,
-		// },
-		// {
-		// 	loggerLevel:  InfoLevel,
-		// 	messageLevel: WarnLevel,
-		// 	shouldPrint:  true,
-		// },
-		// {
-		// 	loggerLevel:  InfoLevel,
-		// 	messageLevel: ErrorLevel,
-		// 	shouldPrint:  true,
-		// },
-		// // Warning
-		// {
-		// 	loggerLevel:  WarnLevel,
-		// 	messageLevel: DebugLevel,
-		// 	shouldPrint:  false,
-		// },
-		// {
-		// 	loggerLevel:  WarnLevel,
-		// 	messageLevel: InfoLevel,
-		// 	shouldPrint:  false,
-		// },
-		// {
-		// 	loggerLevel:  WarnLevel,
-		// 	messageLevel: WarnLevel,
-		// 	shouldPrint:  true,
-		// },
-		// {
-		// 	loggerLevel:  WarnLevel,
-		// 	messageLevel: ErrorLevel,
-		// 	shouldPrint:  true,
-		// },
-		// // Error
-		// {
-		// 	loggerLevel:  ErrorLevel,
-		// 	messageLevel: DebugLevel,
-		// 	shouldPrint:  false,
-		// },
-		// {
-		// 	loggerLevel:  ErrorLevel,
-		// 	messageLevel: InfoLevel,
-		// 	shouldPrint:  false,
-		// },
-		// {
-		// 	loggerLevel:  ErrorLevel,
-		// 	messageLevel: WarnLevel,
-		// 	shouldPrint:  false,
-		// },
-		// {
-		// 	loggerLevel:  WarnLevel,
-		// 	messageLevel: ErrorLevel,
-		// 	shouldPrint:  true,
-		// },
+		{
+			loggerLevel:  DebugLevel,
+			messageLevel: InfoLevel,
+			shouldPrint:  true,
+		},
+		{
+			loggerLevel:  DebugLevel,
+			messageLevel: WarnLevel,
+			shouldPrint:  true,
+		},
+		{
+			loggerLevel:  DebugLevel,
+			messageLevel: ErrorLevel,
+			shouldPrint:  true,
+		},
+		// Info
+		{
+			loggerLevel:  InfoLevel,
+			messageLevel: DebugLevel,
+			shouldPrint:  false,
+		},
+		{
+			loggerLevel:  InfoLevel,
+			messageLevel: InfoLevel,
+			shouldPrint:  true,
+		},
+		{
+			loggerLevel:  InfoLevel,
+			messageLevel: WarnLevel,
+			shouldPrint:  true,
+		},
+		{
+			loggerLevel:  InfoLevel,
+			messageLevel: ErrorLevel,
+			shouldPrint:  true,
+		},
+		// Warning
+		{
+			loggerLevel:  WarnLevel,
+			messageLevel: DebugLevel,
+			shouldPrint:  false,
+		},
+		{
+			loggerLevel:  WarnLevel,
+			messageLevel: InfoLevel,
+			shouldPrint:  false,
+		},
+		{
+			loggerLevel:  WarnLevel,
+			messageLevel: WarnLevel,
+			shouldPrint:  true,
+		},
+		{
+			loggerLevel:  WarnLevel,
+			messageLevel: ErrorLevel,
+			shouldPrint:  true,
+		},
+		// Error
+		{
+			loggerLevel:  ErrorLevel,
+			messageLevel: DebugLevel,
+			shouldPrint:  false,
+		},
+		{
+			loggerLevel:  ErrorLevel,
+			messageLevel: InfoLevel,
+			shouldPrint:  false,
+		},
+		{
+			loggerLevel:  ErrorLevel,
+			messageLevel: WarnLevel,
+			shouldPrint:  false,
+		},
+		{
+			loggerLevel:  WarnLevel,
+			messageLevel: ErrorLevel,
+			shouldPrint:  true,
+		},
 	}
 	for _, tc := range testCases {
 		var msg string
@@ -109,7 +109,9 @@ func TestLogger(t *testing.T) {
 		}
 		t.Run(msg, func(t *testing.T) {
 			w := &bytes.Buffer{}
+
 			SetLogLevel(tc.loggerLevel)
+			SetWriter(w)
 
 			switch tc.messageLevel {
 			case DebugLevel:

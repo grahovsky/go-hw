@@ -1,12 +1,17 @@
 package logger
 
 import (
+	"io"
+	"os"
+
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 type Logger struct {
-	core  *zap.Logger
-	level string
+	core   *zap.Logger
+	level  string
+	writer io.Writer
 }
 
 var myLog *Logger
@@ -19,11 +24,39 @@ const (
 )
 
 func init() {
-	myLog = &Logger{core: zap.Must(zap.NewDevelopment()), level: InfoLevel}
+	myLog = &Logger{core: zap.Must(zap.NewDevelopment()), level: InfoLevel, writer: os.Stdout}
 }
 
 func SetLogLevel(level string) {
 	myLog.level = level
+	initCore()
+}
+
+func SetWriter(writer io.Writer) {
+	myLog.writer = writer
+	initCore()
+}
+
+func initCore() {
+	var zapLevel zapcore.Level
+
+	switch myLog.level {
+	case "WARN":
+		zapLevel = zap.WarnLevel
+	case "INFO":
+		zapLevel = zap.InfoLevel
+	case "DEBUG":
+		zapLevel = zap.DebugLevel
+	default:
+		zapLevel = zap.ErrorLevel
+	}
+
+	core := zapcore.NewCore(
+		zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig()),
+		zapcore.AddSync(myLog.writer),
+		zap.NewAtomicLevelAt(zapLevel))
+
+	myLog.core = zap.New(core)
 }
 
 func GetLogger() *Logger {
@@ -35,19 +68,13 @@ func Error(msg string) {
 }
 
 func Warn(msg string) {
-	if myLog.level == WarnLevel || myLog.level == InfoLevel || myLog.level == DebugLevel {
-		myLog.core.Warn(msg)
-	}
+	myLog.core.Warn(msg)
 }
 
 func Info(msg string) {
-	if myLog.level == InfoLevel || myLog.level == DebugLevel {
-		myLog.core.Info(msg)
-	}
+	myLog.core.Info(msg)
 }
 
 func Debug(msg string) {
-	if myLog.level == DebugLevel {
-		myLog.core.Debug(msg)
-	}
+	myLog.core.Debug(msg)
 }
