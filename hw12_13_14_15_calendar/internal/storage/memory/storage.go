@@ -47,8 +47,12 @@ func (s *Storage) GetEvent(_ context.Context, id uuid.UUID) (*storage.Event, err
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	if id == uuid.Nil || !s.contains(id) {
-		return &storage.Event{}, storage.ErrEventID
+	if id == uuid.Nil {
+		return nil, storage.ErrEventID
+	}
+
+	if !s.contains(id) {
+		return nil, storage.ErrEventNotFound
 	}
 
 	event := s.events[id]
@@ -107,12 +111,16 @@ func (s *Storage) DeleteEvent(_ context.Context, id uuid.UUID) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	if id == uuid.Nil || !s.contains(id) {
+	if id == uuid.Nil {
 		return storage.ErrEventID
 	}
 
+	if !s.contains(id) {
+		return storage.ErrEventNotFound
+	}
+
 	delete(s.events, id)
-	logger.Info("Delete event with ID: " + id.String())
+	logger.Debug("Delete event with ID: " + id.String())
 
 	return nil
 }

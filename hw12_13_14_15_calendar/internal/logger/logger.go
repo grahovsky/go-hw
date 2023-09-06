@@ -25,6 +25,7 @@ const (
 
 func init() {
 	myLog = &Logger{core: zap.Must(zap.NewDevelopment()), level: InfoLevel, writer: os.Stdout}
+	initCore()
 }
 
 func SetLogLevel(level string) {
