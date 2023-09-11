@@ -19,6 +19,10 @@ type Config struct {
 		User     string `mapstructure:"user" env:"DB_USER"`
 		Password string `mapstructure:"password" env:"DB_PASSWORD"`
 	} `mapstructure:"db"`
+	Server struct {
+		Host string `mapstructure:"host" env:"SRV_HOST"`
+		Port string `mapstructure:"port" env:"SRV_PORT"`
+	} `mapstructure:"server"`
 	DebugMessage string `mapstructure:"debugMessage"`
 	Some         string `mapstructure:"some"`
 	PrintVersion bool
@@ -33,6 +37,9 @@ func init() {
 	versionFlag := pflag.Bool("version", false, "version app")
 	pflag.String("loglevel", "INFO", "log level app")
 	pflag.String("config", "./configs/config.yaml", "Path to configuration file")
+	pflag.String("server_host", "127.0.0.1", "server hostname")
+	pflag.String("server_port", "8080", "server port")
+
 	pflag.Parse()
 
 	if *versionFlag {

@@ -35,6 +35,8 @@ func NewServer(app Application, addr string) *Server {
 		Handler:     loggingMiddleware(mux),
 	}
 
+	logger.Info(fmt.Sprintf("create server: %v", addr))
+
 	return &Server{
 		app: app,
 		srv: srv,

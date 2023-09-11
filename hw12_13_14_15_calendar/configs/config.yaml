@@ -7,5 +7,8 @@ db:
   host: "localhost"
   user: "postgres"
   password: "postgres"
+server:
+  host: "0.0.0.0"
+  port: "8080"
 debugMessage: "debug message test"
 some: "some2"
