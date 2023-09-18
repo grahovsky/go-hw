@@ -2,43 +2,46 @@ package main
 
 import (
 	"context"
-	"flag"
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/app"
+	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/config"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/logger"
 	internalhttp "github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/server/http"
 	memorystorage "github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/storage/memory"
+	sqlstorage "github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/storage/sql"
 )
 
-var configFile string
-
-func init() {
-	flag.StringVar(&configFile, "config", "/etc/calendar/config.toml", "Path to configuration file")
-}
-
 func main() {
-	flag.Parse()
-
-	if flag.Arg(0) == "version" {
-		printVersion()
+	if config.Settings.PrintVersion {
+		PrintVersion()
 		return
 	}
 
-	config := NewConfig()
-	logg := logger.New(config.Logger.Level)
-
-	storage := memorystorage.New()
-	calendar := app.New(logg, storage)
-
-	server := internalhttp.NewServer(logg, calendar)
+	logger.SetLogLevel(config.Settings.Log.Level)
+	logger.Debug(config.Settings.DebugMessage)
 
 	ctx, cancel := signal.NotifyContext(context.Background(),
 		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 	defer cancel()
+
+	var usedStorage app.Storage
+	if config.Settings.Storage.Type == "sql" {
+		usedStorage = &sqlstorage.Storage{}
+	} else {
+		usedStorage = &memorystorage.Storage{}
+	}
+	usedStorage.InitStorage()
+	defer usedStorage.Close()
+
+	// var calendar internalhttp.Application
+	calendar := app.New(usedStorage)
+	server := internalhttp.NewServer(calendar,
+		fmt.Sprintf("%v:%v", config.Settings.Server.Host, config.Settings.Server.Port))
 
 	go func() {
 		<-ctx.Done()
@@ -47,14 +50,14 @@ func main() {
 		defer cancel()
 
 		if err := server.Stop(ctx); err != nil {
-			logg.Error("failed to stop http server: " + err.Error())
+			logger.Error("failed to stop http server: " + err.Error())
 		}
 	}()
 
-	logg.Info("calendar is running...")
+	logger.Info("calendar is running...")
 
 	if err := server.Start(ctx); err != nil {
-		logg.Error("failed to start http server: " + err.Error())
+		logger.Error("failed to start http server: " + err.Error())
 		cancel()
 		os.Exit(1) //nolint:gocritic
 	}

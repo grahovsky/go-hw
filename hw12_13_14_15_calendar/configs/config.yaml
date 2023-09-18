@@ -1,0 +1,14 @@
+log:
+  level: "INFO"
+storage:
+  type: "in-memory"
+db:
+  name: "calendar"
+  host: "localhost"
+  user: "postgres"
+  password: "postgres"
+server:
+  host: "0.0.0.0"
+  port: "8080"
+debugMessage: "debug message test"
+some: "some2"

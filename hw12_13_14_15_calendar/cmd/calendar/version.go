@@ -7,12 +7,12 @@ import (
 )
 
 var (
-	release   = "UNKNOWN"
-	buildDate = "UNKNOWN"
-	gitHash   = "UNKNOWN"
+	release   = "1.0.0"
+	buildDate = "20230802"
+	gitHash   = "3230cde47aaa391ba9e96d02cc09faba6741c4be"
 )
 
-func printVersion() {
+func PrintVersion() {
 	if err := json.NewEncoder(os.Stdout).Encode(struct {
 		Release   string
 		BuildDate string

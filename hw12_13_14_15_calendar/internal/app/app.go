@@ -2,25 +2,36 @@ package app
 
 import (
 	"context"
+	"time"
+
+	"github.com/google/uuid"
+	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/logger"
+	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/storage"
 )
 
-type App struct { // TODO
+type App struct {
+	storage Storage
 }
 
-type Logger interface { // TODO
+type Storage interface {
+	InitStorage()
+	AddEvent(ctx context.Context, event *storage.Event) error
+	GetEvent(ctx context.Context, id uuid.UUID) (*storage.Event, error)
+	GetEventsForPeriod(ctx context.Context, from, to time.Time) ([]storage.Event, error)
+	ListEvents(ctx context.Context, limit, low uint64) ([]storage.Event, error)
+	UpdateEvent(ctx context.Context, event *storage.Event) error
+	DeleteEvent(ctx context.Context, id uuid.UUID) error
+	Close() error
 }
 
-type Storage interface { // TODO
+func New(storage Storage) *App {
+	logger.Info("app start")
+	return &App{storage: storage}
 }
 
-func New(logger Logger, storage Storage) *App {
-	return &App{}
-}
-
-func (a *App) CreateEvent(ctx context.Context, id, title string) error {
+func (a *App) AddEvent(ctx context.Context, event *storage.Event) error {
 	// TODO
-	return nil
-	// return a.storage.CreateEvent(storage.Event{ID: id, Title: title})
+	return a.storage.AddEvent(ctx, event)
 }
 
 // TODO
