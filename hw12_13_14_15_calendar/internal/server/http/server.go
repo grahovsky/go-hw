@@ -7,13 +7,15 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/google/uuid"
+	"github.com/gorilla/mux"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/logger"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/storage"
 )
 
 type Application interface {
 	AddEvent(context.Context, *storage.Event) error
-	// GetEvent(ctx context.Context, id uuid.UUID) (*storage.Event, error)
+	GetEvent(context.Context, uuid.UUID) (*storage.Event, error)
 	// GetEventsForPeriod(ctx context.Context, from, to time.Time) ([]storage.Event, error)
 	// ListEvents(ctx context.Context, limit, low uint64) ([]storage.Event, error)
 	// UpdateEvent(ctx context.Context, event *storage.Event) error
@@ -26,21 +28,26 @@ type Server struct {
 }
 
 func NewServer(app Application, addr string) *Server {
-	mux := http.NewServeMux()
-	mux.HandleFunc("/hello", SayHello())
+	serv := &Server{app: app}
 
-	srv := &http.Server{
+	router := mux.NewRouter()
+	router.HandleFunc("/hello", serv.SayHello)
+	router.HandleFunc("/AddEvent", serv.AddEvent).Methods("PUT")
+	router.HandleFunc("/GetEvent", serv.GetEvent).Methods("POST")
+	// router.HandleFunc("/GetEventsForPeriod", serv.GetEventsForPeriod).Methods("PUT")
+	// router.HandleFunc("/ListEvents", serv.ListEvents).Methods("GET")
+	// router.HandleFunc("/UpdateEvent", serv.UpdateEvent).Methods("PUT")
+	// router.HandleFunc("/DeleteEvent", serv.DeleteEvent).Methods("DELETE")
+
+	serv.srv = &http.Server{
 		Addr:        addr,
 		ReadTimeout: 5 * time.Second,
-		Handler:     loggingMiddleware(mux),
+		Handler:     loggingMiddleware(router),
 	}
 
 	logger.Info(fmt.Sprintf("create server: %v", addr))
 
-	return &Server{
-		app: app,
-		srv: srv,
-	}
+	return serv
 }
 
 func (s *Server) Start(_ context.Context) error {
@@ -53,13 +60,9 @@ func (s *Server) Start(_ context.Context) error {
 }
 
 func (s *Server) Stop(ctx context.Context) error {
-	return s.srv.Shutdown(ctx)
-}
-
-func SayHello() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		if _, err := w.Write([]byte("Hello World!\n")); err != nil {
-			logger.Error(fmt.Sprintf("failed to write response: %v", err))
-		}
+	logger.Info("HTTP server stopping..")
+	if err := s.srv.Shutdown(ctx); err != nil {
+		return err
 	}
+	return nil
 }

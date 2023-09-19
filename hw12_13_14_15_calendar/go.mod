@@ -4,15 +4,18 @@ go 1.21
 
 require (
 	github.com/google/uuid v1.3.1
+	github.com/gorilla/mux v1.8.0
 	github.com/jackc/pgx v3.6.2+incompatible
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.16.0
+	github.com/stretchr/testify v1.8.3
 	go.uber.org/zap v1.25.0
 )
 
 require (
 	github.com/cockroachdb/apd v1.1.0 // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/gofrs/uuid v4.4.0+incompatible // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
@@ -21,6 +24,7 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.8 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/shopspring/decimal v1.3.1 // indirect
 	github.com/spf13/afero v1.9.5 // indirect
 	github.com/spf13/cast v1.5.1 // indirect

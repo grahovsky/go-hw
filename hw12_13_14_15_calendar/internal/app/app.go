@@ -30,8 +30,11 @@ func New(storage Storage) *App {
 }
 
 func (a *App) AddEvent(ctx context.Context, event *storage.Event) error {
-	// TODO
 	return a.storage.AddEvent(ctx, event)
+}
+
+func (a *App) GetEvent(ctx context.Context, id uuid.UUID) (*storage.Event, error) {
+	return a.storage.GetEvent(ctx, id)
 }
 
 // TODO
