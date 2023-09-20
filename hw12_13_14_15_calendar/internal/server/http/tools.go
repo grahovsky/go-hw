@@ -9,6 +9,7 @@ import (
 	"strconv"
 
 	"github.com/google/uuid"
+	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/logger"
 )
 
 func parseParam(r *http.Request, name string) (string, error) {
@@ -46,4 +47,14 @@ func parseBody(r *http.Request, body any) error {
 		return fmt.Errorf("failed to decode request: %w", err)
 	}
 	return nil
+}
+
+func checkError(w http.ResponseWriter, err error) bool {
+	if err != nil {
+		logger.Error(fmt.Sprintf("%v", err))
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return true
+	}
+
+	return false
 }
