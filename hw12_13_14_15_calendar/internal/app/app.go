@@ -30,6 +30,9 @@ func New(storage Storage) *App {
 }
 
 func (a *App) AddEvent(ctx context.Context, event *storage.Event) error {
+	if event.ID == uuid.Nil {
+		event.ID = uuid.New()
+	}
 	return a.storage.AddEvent(ctx, event)
 }
 

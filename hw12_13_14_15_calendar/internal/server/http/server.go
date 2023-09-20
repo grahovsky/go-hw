@@ -32,8 +32,8 @@ func NewServer(app Application, addr string) *Server {
 
 	router := mux.NewRouter()
 	router.HandleFunc("/hello", serv.SayHello)
-	router.HandleFunc("/AddEvent", serv.AddEvent).Methods("PUT")
-	router.HandleFunc("/GetEvent", serv.GetEvent).Methods("POST")
+	router.HandleFunc("/AddEvent", serv.AddEvent).Methods("POST")
+	router.HandleFunc("/GetEvent", serv.GetEvent).Methods("GET")
 	// router.HandleFunc("/GetEventsForPeriod", serv.GetEventsForPeriod).Methods("PUT")
 	// router.HandleFunc("/ListEvents", serv.ListEvents).Methods("GET")
 	// router.HandleFunc("/UpdateEvent", serv.UpdateEvent).Methods("PUT")

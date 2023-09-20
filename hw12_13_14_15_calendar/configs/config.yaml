@@ -1,7 +1,8 @@
 log:
   level: "INFO"
 storage:
-  type: "in-memory"
+  type: "sql"
+  # type: "in-memory"
 db:
   name: "calendar"
   host: "localhost"
@@ -9,6 +10,6 @@ db:
   password: "postgres"
 server:
   host: "0.0.0.0"
-  port: "8080"
+  port: "8081"
 debugMessage: "debug message test"
 some: "some2"
