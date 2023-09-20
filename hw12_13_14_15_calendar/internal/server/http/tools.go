@@ -6,16 +6,35 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 
 	"github.com/google/uuid"
 )
 
-func parseID(r *http.Request) (uuid.UUID, error) {
-	id := r.URL.Query().Get("id")
-	if id == "" {
-		return uuid.UUID{}, fmt.Errorf("required param 'id' not found")
+func parseParam(r *http.Request, name string) (string, error) {
+	param := r.URL.Query().Get(name)
+	if param == "" {
+		return "", fmt.Errorf("required param '%v' not found", name)
 	}
-	return uuid.Parse(id)
+	return param, nil
+}
+
+func parseParamUint64(r *http.Request, name string) (uint64, error) {
+	paramS, err := parseParam(r, name)
+	if err != nil {
+		return 0, err
+	}
+
+	return strconv.ParseUint(paramS, 0, 64)
+}
+
+func parseParamUuid(r *http.Request, name string) (uuid.UUID, error) {
+	paramS, err := parseParam(r, name)
+	if err != nil {
+		return uuid.UUID{}, err
+	}
+
+	return uuid.Parse(paramS)
 }
 
 func parseBody(r *http.Request, body any) error {

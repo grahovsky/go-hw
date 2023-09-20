@@ -77,6 +77,8 @@ func (s *Storage) GetEvent(ctx context.Context, id uuid.UUID) (*storage.Event, e
 }
 
 func (s *Storage) GetEventsForPeriod(ctx context.Context, from, to time.Time) ([]storage.Event, error) {
+	fmt.Println(from, to)
+
 	getEventsForPeriodQuery := `
 	SELECT id, title, date_start, date_end, user_id, coalesce(description, '') as description, date_notification 
 	FROM events 

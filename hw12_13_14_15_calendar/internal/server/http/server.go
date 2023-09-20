@@ -16,8 +16,8 @@ import (
 type Application interface {
 	AddEvent(context.Context, *storage.Event) error
 	GetEvent(context.Context, uuid.UUID) (*storage.Event, error)
-	// GetEventsForPeriod(ctx context.Context, from, to time.Time) ([]storage.Event, error)
-	// ListEvents(ctx context.Context, limit, low uint64) ([]storage.Event, error)
+	GetEventsForPeriod(ctx context.Context, from, to time.Time) ([]storage.Event, error)
+	ListEvents(ctx context.Context, limit, low uint64) ([]storage.Event, error)
 	// UpdateEvent(ctx context.Context, event *storage.Event) error
 	// DeleteEvent(ctx context.Context, id uuid.UUID) error
 }
@@ -34,8 +34,8 @@ func NewServer(app Application, addr string) *Server {
 	router.HandleFunc("/hello", serv.SayHello)
 	router.HandleFunc("/AddEvent", serv.AddEvent).Methods("POST")
 	router.HandleFunc("/GetEvent", serv.GetEvent).Methods("GET")
-	// router.HandleFunc("/GetEventsForPeriod", serv.GetEventsForPeriod).Methods("PUT")
-	// router.HandleFunc("/ListEvents", serv.ListEvents).Methods("GET")
+	router.HandleFunc("/GetEventsForPeriod", serv.GetEventsForPeriod).Methods("POST")
+	router.HandleFunc("/ListEvents", serv.ListEvents).Methods("GET")
 	// router.HandleFunc("/UpdateEvent", serv.UpdateEvent).Methods("PUT")
 	// router.HandleFunc("/DeleteEvent", serv.DeleteEvent).Methods("DELETE")
 
