@@ -13,6 +13,7 @@ import (
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/logger"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/server"
 	internalhttp "github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/server/http"
+	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/storage"
 	memorystorage "github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/storage/memory"
 	sqlstorage "github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/storage/sql"
 )
@@ -30,7 +31,7 @@ func main() {
 		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 	defer cancel()
 
-	var usedStorage app.Storage
+	var usedStorage storage.Storage
 	if config.Settings.Storage.Type == "sql" {
 		usedStorage = &sqlstorage.Storage{}
 	} else {
