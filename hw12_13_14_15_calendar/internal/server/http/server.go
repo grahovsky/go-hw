@@ -7,28 +7,18 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/logger"
-	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/models"
+	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/server"
 )
 
-type Application interface {
-	AddEvent(context.Context, *models.Event) error
-	GetEvent(context.Context, uuid.UUID) (*models.Event, error)
-	GetEventsForPeriod(ctx context.Context, from, to time.Time) ([]models.Event, error)
-	ListEvents(ctx context.Context, limit, low uint64) ([]models.Event, error)
-	UpdateEvent(ctx context.Context, event *models.Event) error
-	DeleteEvent(ctx context.Context, id uuid.UUID) error
-}
-
-type Server struct {
-	app Application
+type HTTPServer struct {
+	app server.Application
 	srv *http.Server
 }
 
-func NewServer(app Application, addr string) *Server {
-	serv := &Server{app: app}
+func NewServer(app server.Application, addr string) *HTTPServer {
+	serv := &HTTPServer{app: app}
 
 	router := mux.NewRouter()
 	router.HandleFunc("/hello", serv.SayHello)
@@ -50,7 +40,7 @@ func NewServer(app Application, addr string) *Server {
 	return serv
 }
 
-func (s *Server) Start(_ context.Context) error {
+func (s *HTTPServer) Start(_ context.Context) error {
 	if err := s.srv.ListenAndServe(); err != nil {
 		if !errors.Is(err, http.ErrServerClosed) {
 			return err
@@ -59,7 +49,7 @@ func (s *Server) Start(_ context.Context) error {
 	return nil
 }
 
-func (s *Server) Stop(ctx context.Context) error {
+func (s *HTTPServer) Stop(ctx context.Context) error {
 	logger.Info("HTTP server stopping..")
 	err := s.srv.Shutdown(ctx)
 	return err

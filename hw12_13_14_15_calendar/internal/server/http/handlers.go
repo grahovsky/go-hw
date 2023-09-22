@@ -10,14 +10,14 @@ import (
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/models"
 )
 
-func (s *Server) SayHello(w http.ResponseWriter, _ *http.Request) {
+func (s *HTTPServer) SayHello(w http.ResponseWriter, _ *http.Request) {
 	if _, err := w.Write([]byte("Hello World!\n")); err != nil {
 		logger.Error(fmt.Sprintf("failed to write response: %v", err))
 	}
 	w.WriteHeader(http.StatusOK)
 }
 
-func (s *Server) AddEvent(w http.ResponseWriter, r *http.Request) {
+func (s *HTTPServer) AddEvent(w http.ResponseWriter, r *http.Request) {
 	ev := models.Event{}
 	err := parseBody(r, &ev)
 	if checkError(w, err) {
@@ -30,7 +30,7 @@ func (s *Server) AddEvent(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (s *Server) GetEvent(w http.ResponseWriter, r *http.Request) {
+func (s *HTTPServer) GetEvent(w http.ResponseWriter, r *http.Request) {
 	id, err := parseParamUUID(r, "id")
 	if checkError(w, err) {
 		return
@@ -47,7 +47,7 @@ func (s *Server) GetEvent(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (s *Server) GetEventsForPeriod(w http.ResponseWriter, r *http.Request) {
+func (s *HTTPServer) GetEventsForPeriod(w http.ResponseWriter, r *http.Request) {
 	var filter struct {
 		DateFrom time.Time `json:"dateFrom"`
 		DateTo   time.Time `json:"dateTo"`
@@ -67,7 +67,7 @@ func (s *Server) GetEventsForPeriod(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (s *Server) ListEvents(w http.ResponseWriter, r *http.Request) {
+func (s *HTTPServer) ListEvents(w http.ResponseWriter, r *http.Request) {
 	limit, err := parseParamUint64(r, "limit")
 	if checkError(w, err) {
 		return
@@ -89,7 +89,7 @@ func (s *Server) ListEvents(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (s *Server) UpdateEvent(w http.ResponseWriter, r *http.Request) {
+func (s *HTTPServer) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 	ev := models.Event{}
 	err := parseBody(r, &ev)
 	if checkError(w, err) {
@@ -102,7 +102,7 @@ func (s *Server) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (s *Server) DeleteEvent(w http.ResponseWriter, r *http.Request) {
+func (s *HTTPServer) DeleteEvent(w http.ResponseWriter, r *http.Request) {
 	id, err := parseParamUUID(r, "id")
 	if checkError(w, err) {
 		return

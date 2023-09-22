@@ -11,6 +11,7 @@ import (
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/app"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/config"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/logger"
+	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/server"
 	internalhttp "github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/server/http"
 	memorystorage "github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/storage/memory"
 	sqlstorage "github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/storage/sql"
@@ -40,7 +41,7 @@ func main() {
 
 	// var calendar internalhttp.Application
 	calendar := app.New(usedStorage)
-	server := internalhttp.NewServer(calendar,
+	var server server.Server = internalhttp.NewServer(calendar,
 		fmt.Sprintf("%v:%v", config.Settings.Server.Host, config.Settings.Server.Port))
 
 	go func() {
