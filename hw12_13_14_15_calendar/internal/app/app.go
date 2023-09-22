@@ -48,4 +48,10 @@ func (a *App) ListEvents(ctx context.Context, limit, low uint64) ([]storage.Even
 	return a.storage.ListEvents(ctx, limit, low)
 }
 
-// TODO
+func (a *App) UpdateEvent(ctx context.Context, event *storage.Event) error {
+	return a.storage.UpdateEvent(ctx, event)
+}
+
+func (a *App) DeleteEvent(ctx context.Context, id uuid.UUID) error {
+	return a.storage.DeleteEvent(ctx, id)
+}

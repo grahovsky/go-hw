@@ -18,8 +18,8 @@ type Application interface {
 	GetEvent(context.Context, uuid.UUID) (*storage.Event, error)
 	GetEventsForPeriod(ctx context.Context, from, to time.Time) ([]storage.Event, error)
 	ListEvents(ctx context.Context, limit, low uint64) ([]storage.Event, error)
-	// UpdateEvent(ctx context.Context, event *storage.Event) error
-	// DeleteEvent(ctx context.Context, id uuid.UUID) error
+	UpdateEvent(ctx context.Context, event *storage.Event) error
+	DeleteEvent(ctx context.Context, id uuid.UUID) error
 }
 
 type Server struct {
@@ -36,8 +36,8 @@ func NewServer(app Application, addr string) *Server {
 	router.HandleFunc("/GetEvent", serv.GetEvent).Methods("GET")
 	router.HandleFunc("/GetEventsForPeriod", serv.GetEventsForPeriod).Methods("POST")
 	router.HandleFunc("/ListEvents", serv.ListEvents).Methods("GET")
-	// router.HandleFunc("/UpdateEvent", serv.UpdateEvent).Methods("PUT")
-	// router.HandleFunc("/DeleteEvent", serv.DeleteEvent).Methods("DELETE")
+	router.HandleFunc("/UpdateEvent", serv.UpdateEvent).Methods("POST")
+	router.HandleFunc("/DeleteEvent", serv.DeleteEvent).Methods("DELETE")
 
 	serv.srv = &http.Server{
 		Addr:        addr,

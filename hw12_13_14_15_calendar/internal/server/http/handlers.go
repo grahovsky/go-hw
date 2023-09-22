@@ -88,3 +88,29 @@ func (s *Server) ListEvents(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusOK)
 }
+
+func (s *Server) UpdateEvent(w http.ResponseWriter, r *http.Request) {
+	ev := storage.Event{}
+	err := parseBody(r, &ev)
+	if checkError(w, err) {
+		return
+	}
+	err = s.app.UpdateEvent(r.Context(), &ev)
+	if checkError(w, err) {
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
+
+func (s *Server) DeleteEvent(w http.ResponseWriter, r *http.Request) {
+	id, err := parseParamUuid(r, "id")
+	if checkError(w, err) {
+		return
+	}
+
+	err = s.app.DeleteEvent(r.Context(), id)
+	if checkError(w, err) {
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
