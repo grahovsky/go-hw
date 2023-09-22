@@ -6,7 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/logger"
-	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/storage"
+	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/models"
 )
 
 type App struct {
@@ -15,11 +15,11 @@ type App struct {
 
 type Storage interface {
 	InitStorage()
-	AddEvent(ctx context.Context, event *storage.Event) error
-	GetEvent(ctx context.Context, id uuid.UUID) (*storage.Event, error)
-	GetEventsForPeriod(ctx context.Context, from, to time.Time) ([]storage.Event, error)
-	ListEvents(ctx context.Context, limit, low uint64) ([]storage.Event, error)
-	UpdateEvent(ctx context.Context, event *storage.Event) error
+	AddEvent(ctx context.Context, event *models.Event) error
+	GetEvent(ctx context.Context, id uuid.UUID) (*models.Event, error)
+	GetEventsForPeriod(ctx context.Context, from, to time.Time) ([]models.Event, error)
+	ListEvents(ctx context.Context, limit, low uint64) ([]models.Event, error)
+	UpdateEvent(ctx context.Context, event *models.Event) error
 	DeleteEvent(ctx context.Context, id uuid.UUID) error
 	Close() error
 }
@@ -29,26 +29,26 @@ func New(storage Storage) *App {
 	return &App{storage: storage}
 }
 
-func (a *App) AddEvent(ctx context.Context, event *storage.Event) error {
+func (a *App) AddEvent(ctx context.Context, event *models.Event) error {
 	if event.ID == uuid.Nil {
 		event.ID = uuid.New()
 	}
 	return a.storage.AddEvent(ctx, event)
 }
 
-func (a *App) GetEvent(ctx context.Context, id uuid.UUID) (*storage.Event, error) {
+func (a *App) GetEvent(ctx context.Context, id uuid.UUID) (*models.Event, error) {
 	return a.storage.GetEvent(ctx, id)
 }
 
-func (a *App) GetEventsForPeriod(ctx context.Context, dateFrom, dateTo time.Time) ([]storage.Event, error) {
+func (a *App) GetEventsForPeriod(ctx context.Context, dateFrom, dateTo time.Time) ([]models.Event, error) {
 	return a.storage.GetEventsForPeriod(ctx, dateFrom, dateTo)
 }
 
-func (a *App) ListEvents(ctx context.Context, limit, low uint64) ([]storage.Event, error) {
+func (a *App) ListEvents(ctx context.Context, limit, low uint64) ([]models.Event, error) {
 	return a.storage.ListEvents(ctx, limit, low)
 }
 
-func (a *App) UpdateEvent(ctx context.Context, event *storage.Event) error {
+func (a *App) UpdateEvent(ctx context.Context, event *models.Event) error {
 	return a.storage.UpdateEvent(ctx, event)
 }
 

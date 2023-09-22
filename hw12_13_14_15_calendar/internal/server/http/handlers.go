@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/logger"
-	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/storage"
+	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/models"
 )
 
 func (s *Server) SayHello(w http.ResponseWriter, r *http.Request) {
@@ -18,7 +18,7 @@ func (s *Server) SayHello(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) AddEvent(w http.ResponseWriter, r *http.Request) {
-	ev := storage.Event{}
+	ev := models.Event{}
 	err := parseBody(r, &ev)
 	if checkError(w, err) {
 		return
@@ -90,7 +90,7 @@ func (s *Server) ListEvents(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) UpdateEvent(w http.ResponseWriter, r *http.Request) {
-	ev := storage.Event{}
+	ev := models.Event{}
 	err := parseBody(r, &ev)
 	if checkError(w, err) {
 		return

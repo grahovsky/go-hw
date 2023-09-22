@@ -10,15 +10,15 @@ import (
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/logger"
-	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/storage"
+	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/models"
 )
 
 type Application interface {
-	AddEvent(context.Context, *storage.Event) error
-	GetEvent(context.Context, uuid.UUID) (*storage.Event, error)
-	GetEventsForPeriod(ctx context.Context, from, to time.Time) ([]storage.Event, error)
-	ListEvents(ctx context.Context, limit, low uint64) ([]storage.Event, error)
-	UpdateEvent(ctx context.Context, event *storage.Event) error
+	AddEvent(context.Context, *models.Event) error
+	GetEvent(context.Context, uuid.UUID) (*models.Event, error)
+	GetEventsForPeriod(ctx context.Context, from, to time.Time) ([]models.Event, error)
+	ListEvents(ctx context.Context, limit, low uint64) ([]models.Event, error)
+	UpdateEvent(ctx context.Context, event *models.Event) error
 	DeleteEvent(ctx context.Context, id uuid.UUID) error
 }
 

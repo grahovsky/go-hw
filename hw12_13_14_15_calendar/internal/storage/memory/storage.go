@@ -8,11 +8,11 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/logger"
-	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/storage"
+	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/models"
 )
 
 type (
-	Events map[uuid.UUID]storage.Event
+	Events map[uuid.UUID]models.Event
 
 	Storage struct {
 		mu     sync.RWMutex
@@ -31,28 +31,28 @@ func (s *Storage) Close() error {
 	return nil
 }
 
-func (s *Storage) AddEvent(_ context.Context, event *storage.Event) error {
+func (s *Storage) AddEvent(_ context.Context, event *models.Event) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	if s.contains(event.ID) {
-		return storage.ErrEventAlreadyExists
+		return models.ErrEventAlreadyExists
 	}
 
 	s.events[event.ID] = *event
 	return nil
 }
 
-func (s *Storage) GetEvent(_ context.Context, id uuid.UUID) (*storage.Event, error) {
+func (s *Storage) GetEvent(_ context.Context, id uuid.UUID) (*models.Event, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
 	if id == uuid.Nil {
-		return nil, storage.ErrEventID
+		return nil, models.ErrEventID
 	}
 
 	if !s.contains(id) {
-		return nil, storage.ErrEventNotFound
+		return nil, models.ErrEventNotFound
 	}
 
 	event := s.events[id]
@@ -60,8 +60,8 @@ func (s *Storage) GetEvent(_ context.Context, id uuid.UUID) (*storage.Event, err
 	return &event, nil
 }
 
-func (s *Storage) GetEventsForPeriod(_ context.Context, from, to time.Time) ([]storage.Event, error) {
-	events := make([]storage.Event, 0, len(s.events))
+func (s *Storage) GetEventsForPeriod(_ context.Context, from, to time.Time) ([]models.Event, error) {
+	events := make([]models.Event, 0, len(s.events))
 
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -78,8 +78,8 @@ func (s *Storage) GetEventsForPeriod(_ context.Context, from, to time.Time) ([]s
 	return events, nil
 }
 
-func (s *Storage) ListEvents(_ context.Context, limit, low uint64) ([]storage.Event, error) {
-	events := make([]storage.Event, 0, len(s.events))
+func (s *Storage) ListEvents(_ context.Context, limit, low uint64) ([]models.Event, error) {
+	events := make([]models.Event, 0, len(s.events))
 
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -96,12 +96,12 @@ func (s *Storage) ListEvents(_ context.Context, limit, low uint64) ([]storage.Ev
 	return events[low:high], nil
 }
 
-func (s *Storage) UpdateEvent(_ context.Context, event *storage.Event) error {
+func (s *Storage) UpdateEvent(_ context.Context, event *models.Event) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	if !s.contains(event.ID) {
-		return storage.ErrEventNotFound
+		return models.ErrEventNotFound
 	}
 	s.events[event.ID] = *event
 	return nil
@@ -112,11 +112,11 @@ func (s *Storage) DeleteEvent(_ context.Context, id uuid.UUID) error {
 	defer s.mu.Unlock()
 
 	if id == uuid.Nil {
-		return storage.ErrEventID
+		return models.ErrEventID
 	}
 
 	if !s.contains(id) {
-		return storage.ErrEventNotFound
+		return models.ErrEventNotFound
 	}
 
 	delete(s.events, id)
