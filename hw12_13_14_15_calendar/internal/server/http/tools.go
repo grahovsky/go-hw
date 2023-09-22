@@ -29,7 +29,7 @@ func parseParamUint64(r *http.Request, name string) (uint64, error) {
 	return strconv.ParseUint(paramS, 0, 64)
 }
 
-func parseParamUuid(r *http.Request, name string) (uuid.UUID, error) {
+func parseParamUUID(r *http.Request, name string) (uuid.UUID, error) {
 	paramS, err := parseParam(r, name)
 	if err != nil {
 		return uuid.UUID{}, err

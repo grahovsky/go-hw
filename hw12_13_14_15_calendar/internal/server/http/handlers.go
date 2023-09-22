@@ -10,7 +10,7 @@ import (
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/models"
 )
 
-func (s *Server) SayHello(w http.ResponseWriter, r *http.Request) {
+func (s *Server) SayHello(w http.ResponseWriter, _ *http.Request) {
 	if _, err := w.Write([]byte("Hello World!\n")); err != nil {
 		logger.Error(fmt.Sprintf("failed to write response: %v", err))
 	}
@@ -31,7 +31,7 @@ func (s *Server) AddEvent(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) GetEvent(w http.ResponseWriter, r *http.Request) {
-	id, err := parseParamUuid(r, "id")
+	id, err := parseParamUUID(r, "id")
 	if checkError(w, err) {
 		return
 	}
@@ -103,7 +103,7 @@ func (s *Server) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) DeleteEvent(w http.ResponseWriter, r *http.Request) {
-	id, err := parseParamUuid(r, "id")
+	id, err := parseParamUUID(r, "id")
 	if checkError(w, err) {
 		return
 	}

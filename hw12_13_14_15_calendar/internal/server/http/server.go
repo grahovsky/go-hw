@@ -61,8 +61,6 @@ func (s *Server) Start(_ context.Context) error {
 
 func (s *Server) Stop(ctx context.Context) error {
 	logger.Info("HTTP server stopping..")
-	if err := s.srv.Shutdown(ctx); err != nil {
-		return err
-	}
-	return nil
+	err := s.srv.Shutdown(ctx)
+	return err
 }
