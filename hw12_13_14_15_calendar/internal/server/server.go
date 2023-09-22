@@ -10,7 +10,7 @@ import (
 
 //go:generate mockery --name Application
 type Application interface {
-	AddEvent(context.Context, *models.Event) error
+	AddEvent(context.Context, *models.Event) (uuid.UUID, error)
 	GetEvent(context.Context, uuid.UUID) (*models.Event, error)
 	GetEventsForPeriod(ctx context.Context, from, to time.Time) ([]models.Event, error)
 	ListEvents(ctx context.Context, limit, low uint64) ([]models.Event, error)

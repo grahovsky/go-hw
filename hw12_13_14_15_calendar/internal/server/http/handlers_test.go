@@ -58,7 +58,7 @@ func TestAppMockGetEvent(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.title, func(t *testing.T) {
 			appMock := tt.GetAppMock(t)
-			server := NewServer(appMock, fmt.Sprintf("%v:%v", config.Settings.Server.Host, config.Settings.Server.Port))
+			server := NewServer(appMock, fmt.Sprintf("%v:%v", config.Settings.Server.Host, config.Settings.Server.HTTPPort))
 
 			res, err := server.app.GetEvent(ctx, eventID)
 			if tt.err != nil {

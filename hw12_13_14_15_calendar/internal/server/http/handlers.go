@@ -23,7 +23,7 @@ func (s *HTTPServer) AddEvent(w http.ResponseWriter, r *http.Request) {
 	if checkError(w, err) {
 		return
 	}
-	err = s.app.AddEvent(r.Context(), &ev)
+	_, err = s.app.AddEvent(r.Context(), &ev)
 	if checkError(w, err) {
 		return
 	}

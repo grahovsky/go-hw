@@ -1,7 +1,65 @@
 syntax = "proto3";
 
-package event;
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+package app;
+
+option go_package = "./apppb";
+
+service App
+{
+  rpc AddEvent(AddEventRequest) returns (AddEventResponse) {}
+  rpc UpdateEvent(UpdateEventRequest) returns (UpdateEventResponse) {}
+  rpc DeleteEvent(DeleteEventRequest) returns (DeleteEventResponse) {}
+  rpc GetEventsOfDay(GetEventsRequest) returns (GetEventsResponse) {}
+  rpc GetEventsOfWeek(GetEventsRequest) returns (GetEventsResponse) {}
+  rpc GetEventsOfMonth(GetEventsRequest) returns (GetEventsResponse) {}
+}
 
 message Event {
-    // TODO
+  string id = 1;
+  string title = 2;
+  google.protobuf.Timestamp date_start = 3;
+  google.protobuf.Timestamp date_end = 4;
+  string description = 5;
+  string user_id = 6;
+  google.protobuf.Timestamp date_notification = 7;
+}
+
+message AddEventRequest {
+  string title = 1;
+  google.protobuf.Timestamp date_start = 2;
+  google.protobuf.Timestamp date_end = 3;
+  string description = 4;
+  string user_id = 5;
+  google.protobuf.Timestamp date_notification = 6;
+}
+
+message AddEventResponse {
+  string event_id = 1;
+}
+
+message UpdateEventRequest {
+  Event event = 1;
+}
+
+message UpdateEventResponse {
+  google.protobuf.Empty _ = 1;
+}
+
+message DeleteEventRequest {
+  string event_id = 1;
+}
+
+message DeleteEventResponse {
+  google.protobuf.Empty _ = 1;
+}
+
+message GetEventsRequest {
+  google.protobuf.Timestamp since = 1;
+}
+
+message GetEventsResponse {
+  repeated Event events = 1;
 }

@@ -19,17 +19,29 @@ type Application struct {
 }
 
 // AddEvent provides a mock function with given fields: _a0, _a1
-func (_m *Application) AddEvent(_a0 context.Context, _a1 *models.Event) error {
+func (_m *Application) AddEvent(_a0 context.Context, _a1 *models.Event) (uuid.UUID, error) {
 	ret := _m.Called(_a0, _a1)
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *models.Event) error); ok {
+	var r0 uuid.UUID
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *models.Event) (uuid.UUID, error)); ok {
+		return rf(_a0, _a1)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *models.Event) uuid.UUID); ok {
 		r0 = rf(_a0, _a1)
 	} else {
-		r0 = ret.Error(0)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(uuid.UUID)
+		}
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func(context.Context, *models.Event) error); ok {
+		r1 = rf(_a0, _a1)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // DeleteEvent provides a mock function with given fields: ctx, id
