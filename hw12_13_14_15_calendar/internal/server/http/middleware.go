@@ -6,36 +6,27 @@ import (
 	"time"
 
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/logger"
+	"github.com/urfave/negroni"
 )
-
-type wrappedResponseWriter struct {
-	http.ResponseWriter
-	status int
-}
 
 func loggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		writer := &wrappedResponseWriter{ResponseWriter: w, status: http.StatusOK}
-
 		tStart := time.Now()
-		next.ServeHTTP(writer, r)
+		lrw := negroni.NewResponseWriter(w)
+		next.ServeHTTP(lrw, r)
+		status := lrw.Status()
 
-		statusText := http.StatusText(writer.status)
+		statusText := http.StatusText(status)
 		msg := fmt.Sprintf("%v %v %v %v %v %v %v %v",
 			tStart,
 			r.RemoteAddr,
 			r.Method,
 			r.URL.Path,
 			r.Proto,
-			writer.status,
+			status,
 			statusText,
 			r.UserAgent(),
 		)
 		logger.Info(msg)
 	})
-}
-
-func (w *wrappedResponseWriter) WriteHeader(status int) {
-	w.status = status
-	w.ResponseWriter.WriteHeader(status)
 }

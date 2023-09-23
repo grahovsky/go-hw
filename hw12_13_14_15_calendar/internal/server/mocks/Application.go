@@ -18,17 +18,17 @@ type Application struct {
 	mock.Mock
 }
 
-// AddEvent provides a mock function with given fields: _a0, _a1
-func (_m *Application) AddEvent(_a0 context.Context, _a1 *models.Event) (uuid.UUID, error) {
-	ret := _m.Called(_a0, _a1)
+// AddEvent provides a mock function with given fields: ctx, event
+func (_m *Application) AddEvent(ctx context.Context, event *models.Event) (uuid.UUID, error) {
+	ret := _m.Called(ctx, event)
 
 	var r0 uuid.UUID
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context, *models.Event) (uuid.UUID, error)); ok {
-		return rf(_a0, _a1)
+		return rf(ctx, event)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context, *models.Event) uuid.UUID); ok {
-		r0 = rf(_a0, _a1)
+		r0 = rf(ctx, event)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(uuid.UUID)
@@ -36,7 +36,7 @@ func (_m *Application) AddEvent(_a0 context.Context, _a1 *models.Event) (uuid.UU
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, *models.Event) error); ok {
-		r1 = rf(_a0, _a1)
+		r1 = rf(ctx, event)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -58,17 +58,17 @@ func (_m *Application) DeleteEvent(ctx context.Context, id uuid.UUID) error {
 	return r0
 }
 
-// GetEvent provides a mock function with given fields: _a0, _a1
-func (_m *Application) GetEvent(_a0 context.Context, _a1 uuid.UUID) (*models.Event, error) {
-	ret := _m.Called(_a0, _a1)
+// GetEvent provides a mock function with given fields: ctx, event
+func (_m *Application) GetEvent(ctx context.Context, event uuid.UUID) (*models.Event, error) {
+	ret := _m.Called(ctx, event)
 
 	var r0 *models.Event
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) (*models.Event, error)); ok {
-		return rf(_a0, _a1)
+		return rf(ctx, event)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) *models.Event); ok {
-		r0 = rf(_a0, _a1)
+		r0 = rf(ctx, event)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Event)
@@ -76,7 +76,7 @@ func (_m *Application) GetEvent(_a0 context.Context, _a1 uuid.UUID) (*models.Eve
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
-		r1 = rf(_a0, _a1)
+		r1 = rf(ctx, event)
 	} else {
 		r1 = ret.Error(1)
 	}

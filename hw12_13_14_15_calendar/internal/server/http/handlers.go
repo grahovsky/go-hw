@@ -27,11 +27,12 @@ func (s *HTTPServer) AddEvent(w http.ResponseWriter, r *http.Request) {
 	if checkError(w, err) {
 		return
 	}
+	// status need set before write json data!!!
+	w.WriteHeader(http.StatusCreated)
 	err = json.NewEncoder(w).Encode(id)
 	if checkError(w, err) {
 		return
 	}
-	w.WriteHeader(http.StatusOK)
 }
 
 func (s *HTTPServer) GetEvent(w http.ResponseWriter, r *http.Request) {
@@ -39,16 +40,15 @@ func (s *HTTPServer) GetEvent(w http.ResponseWriter, r *http.Request) {
 	if checkError(w, err) {
 		return
 	}
-
 	event, err := s.app.GetEvent(r.Context(), id)
 	if checkError(w, err) {
 		return
 	}
+	w.WriteHeader(http.StatusOK)
 	err = json.NewEncoder(w).Encode(event)
 	if checkError(w, err) {
 		return
 	}
-	w.WriteHeader(http.StatusOK)
 }
 
 func (s *HTTPServer) GetEventsForPeriod(w http.ResponseWriter, r *http.Request) {
@@ -64,11 +64,11 @@ func (s *HTTPServer) GetEventsForPeriod(w http.ResponseWriter, r *http.Request) 
 	if checkError(w, err) {
 		return
 	}
+	w.WriteHeader(http.StatusOK)
 	err = json.NewEncoder(w).Encode(events)
 	if checkError(w, err) {
 		return
 	}
-	w.WriteHeader(http.StatusOK)
 }
 
 func (s *HTTPServer) ListEvents(w http.ResponseWriter, r *http.Request) {
@@ -76,21 +76,19 @@ func (s *HTTPServer) ListEvents(w http.ResponseWriter, r *http.Request) {
 	if checkError(w, err) {
 		return
 	}
-
 	low, err := parseParamUint64(r, "low")
 	if checkError(w, err) {
 		return
 	}
-
 	events, err := s.app.ListEvents(r.Context(), limit, low)
 	if checkError(w, err) {
 		return
 	}
+	w.WriteHeader(http.StatusOK)
 	err = json.NewEncoder(w).Encode(events)
 	if checkError(w, err) {
 		return
 	}
-	w.WriteHeader(http.StatusOK)
 }
 
 func (s *HTTPServer) UpdateEvent(w http.ResponseWriter, r *http.Request) {
@@ -111,7 +109,6 @@ func (s *HTTPServer) DeleteEvent(w http.ResponseWriter, r *http.Request) {
 	if checkError(w, err) {
 		return
 	}
-
 	err = s.app.DeleteEvent(r.Context(), id)
 	if checkError(w, err) {
 		return

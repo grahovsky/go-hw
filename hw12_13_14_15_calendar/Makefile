@@ -37,4 +37,7 @@ install-migrate-deps:
 migrate: install-migrate-deps
 	goose --dir=./migrations postgres "host=127.0.0.1 user=${DBUSER} password=${DBPASS} dbname=calendar sslmode=disable" up
 
+generate: 
+	go generate ./...
+
 .PHONY: build run build-img run-img version test lint
