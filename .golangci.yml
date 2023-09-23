@@ -41,7 +41,8 @@ linters:
     - exhaustive
     - exportloopref
     - funlen
-    - gci
+    # golang crashes with an error
+    # - gci
     - gocognit
     - goconst
     - gocritic
