@@ -23,7 +23,11 @@ func (s *HTTPServer) AddEvent(w http.ResponseWriter, r *http.Request) {
 	if checkError(w, err) {
 		return
 	}
-	_, err = s.app.AddEvent(r.Context(), &ev)
+	id, err := s.app.AddEvent(r.Context(), &ev)
+	if checkError(w, err) {
+		return
+	}
+	err = json.NewEncoder(w).Encode(id)
 	if checkError(w, err) {
 		return
 	}
