@@ -110,6 +110,84 @@ func (_m *Application) GetEventsForPeriod(ctx context.Context, from time.Time, t
 	return r0, r1
 }
 
+// GetEventsOfDay provides a mock function with given fields: ctx, from
+func (_m *Application) GetEventsOfDay(ctx context.Context, from time.Time) ([]models.Event, error) {
+	ret := _m.Called(ctx, from)
+
+	var r0 []models.Event
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, time.Time) ([]models.Event, error)); ok {
+		return rf(ctx, from)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, time.Time) []models.Event); ok {
+		r0 = rf(ctx, from)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]models.Event)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, time.Time) error); ok {
+		r1 = rf(ctx, from)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetEventsOfMonth provides a mock function with given fields: ctx, from
+func (_m *Application) GetEventsOfMonth(ctx context.Context, from time.Time) ([]models.Event, error) {
+	ret := _m.Called(ctx, from)
+
+	var r0 []models.Event
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, time.Time) ([]models.Event, error)); ok {
+		return rf(ctx, from)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, time.Time) []models.Event); ok {
+		r0 = rf(ctx, from)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]models.Event)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, time.Time) error); ok {
+		r1 = rf(ctx, from)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetEventsOfWeek provides a mock function with given fields: ctx, from
+func (_m *Application) GetEventsOfWeek(ctx context.Context, from time.Time) ([]models.Event, error) {
+	ret := _m.Called(ctx, from)
+
+	var r0 []models.Event
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, time.Time) ([]models.Event, error)); ok {
+		return rf(ctx, from)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, time.Time) []models.Event); ok {
+		r0 = rf(ctx, from)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]models.Event)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, time.Time) error); ok {
+		r1 = rf(ctx, from)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // ListEvents provides a mock function with given fields: ctx, limit, low
 func (_m *Application) ListEvents(ctx context.Context, limit uint64, low uint64) ([]models.Event, error) {
 	ret := _m.Called(ctx, limit, low)

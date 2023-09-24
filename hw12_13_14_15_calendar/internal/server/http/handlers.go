@@ -71,6 +71,42 @@ func (s *HTTPServer) GetEventsForPeriod(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
+func (s *HTTPServer) GetEventsOfDay(w http.ResponseWriter, r *http.Request) {
+	events, err := s.app.GetEventsOfDay(r.Context(), BeginOfDay(time.Now()))
+	if checkError(w, err) {
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(w).Encode(events)
+	if checkError(w, err) {
+		return
+	}
+}
+
+func (s *HTTPServer) GetEventsOfWeek(w http.ResponseWriter, r *http.Request) {
+	events, err := s.app.GetEventsOfWeek(r.Context(), BeginOfDay(time.Now()))
+	if checkError(w, err) {
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(w).Encode(events)
+	if checkError(w, err) {
+		return
+	}
+}
+
+func (s *HTTPServer) GetEventsOfMonth(w http.ResponseWriter, r *http.Request) {
+	events, err := s.app.GetEventsOfMonth(r.Context(), BeginOfDay(time.Now()))
+	if checkError(w, err) {
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(w).Encode(events)
+	if checkError(w, err) {
+		return
+	}
+}
+
 func (s *HTTPServer) ListEvents(w http.ResponseWriter, r *http.Request) {
 	limit, err := parseParamUint64(r, "limit")
 	if checkError(w, err) {

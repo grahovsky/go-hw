@@ -30,8 +30,8 @@ func (a *App) GetEvent(ctx context.Context, id uuid.UUID) (*models.Event, error)
 	return a.storage.GetEvent(ctx, id)
 }
 
-func (a *App) GetEventsForPeriod(ctx context.Context, dateFrom, dateTo time.Time) ([]models.Event, error) {
-	return a.storage.GetEventsForPeriod(ctx, dateFrom, dateTo)
+func (a *App) GetEventsForPeriod(ctx context.Context, since, dateTo time.Time) ([]models.Event, error) {
+	return a.storage.GetEventsForPeriod(ctx, since, dateTo)
 }
 
 func (a *App) ListEvents(ctx context.Context, limit, low uint64) ([]models.Event, error) {

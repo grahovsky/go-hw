@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/logger"
@@ -57,4 +58,8 @@ func checkError(w http.ResponseWriter, err error) bool {
 	}
 
 	return false
+}
+
+func BeginOfDay(t time.Time) time.Time {
+	return t.Truncate(24 * time.Hour)
 }

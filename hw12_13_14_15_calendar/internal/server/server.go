@@ -22,6 +22,9 @@ type Application interface {
 	ListEvents(ctx context.Context, limit, low uint64) ([]models.Event, error)
 	UpdateEvent(ctx context.Context, event *models.Event) error
 	DeleteEvent(ctx context.Context, id uuid.UUID) error
+	GetEventsOfDay(ctx context.Context, from time.Time) ([]models.Event, error)
+	GetEventsOfWeek(ctx context.Context, from time.Time) ([]models.Event, error)
+	GetEventsOfMonth(ctx context.Context, from time.Time) ([]models.Event, error)
 }
 
 type Server interface {
