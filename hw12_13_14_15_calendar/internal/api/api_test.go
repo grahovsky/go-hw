@@ -8,7 +8,6 @@ import (
 
 	"github.com/google/uuid"
 	pb "github.com/grahovsky/go-hw/hw12_13_14_15_calendar/api/apppb"
-	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/api"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/app"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/models"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/storage"
