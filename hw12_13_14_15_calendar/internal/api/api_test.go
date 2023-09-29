@@ -38,7 +38,7 @@ func (s *apiTestSuite) SetupSuite() {
 	s.srv = grpc.NewServer()
 	s.listener = bufconn.Listen(bufferSize)
 
-	pb.RegisterAppServer(s.srv, api.NewAPI(app.New(s.storage)))
+	pb.RegisterAppServer(s.srv, NewAPI(app.New(s.storage)))
 	go func() {
 		s.NoError(s.srv.Serve(s.listener))
 	}()
