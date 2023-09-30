@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/storage"
+	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/models"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
@@ -23,14 +23,14 @@ const (
 
 type MemoryStorageTestSuite struct {
 	suite.Suite
-	events  []storage.Event
+	events  []models.Event
 	storage *Storage
 	start   time.Time
 }
 
 func (s *MemoryStorageTestSuite) SetupTest() {
 	s.start = time.Now()
-	s.events = make([]storage.Event, testEventsCount)
+	s.events = make([]models.Event, testEventsCount)
 	t := s.start
 	for i := 0; i < testEventsCount; i++ {
 		s.events[i] = makeTestEvent(fmt.Sprintf("Event_%d", i), t)
@@ -129,12 +129,12 @@ func (s *MemoryStorageTestSuite) TestGetEvent() {
 	})
 	s.Run("non-existent event", func() {
 		event, err := s.storage.GetEvent(ctx, uuid.New())
-		s.ErrorIs(err, storage.ErrEventNotFound)
+		s.ErrorIs(err, models.ErrEventNotFound)
 		s.Nil(event)
 	})
 	s.Run("err event id", func() {
 		event, err := s.storage.GetEvent(ctx, uuid.Nil)
-		s.ErrorIs(err, storage.ErrEventID)
+		s.ErrorIs(err, models.ErrEventID)
 		s.Nil(event)
 	})
 }
@@ -156,7 +156,7 @@ func (s *MemoryStorageTestSuite) TestInsertEvent() {
 			changedEvent := makeTestEvent("changed_event", time.Now())
 			changedEvent.ID = eventID
 			err := s.storage.AddEvent(ctx, &changedEvent)
-			s.ErrorIs(err, storage.ErrEventAlreadyExists)
+			s.ErrorIs(err, models.ErrEventAlreadyExists)
 		}
 	})
 }
@@ -177,7 +177,7 @@ func (s *MemoryStorageTestSuite) TestUpdateEvent() {
 	s.Run("non-existent event", func() {
 		testEvent := makeTestEvent("test_event", time.Now())
 		err := s.storage.UpdateEvent(ctx, &testEvent)
-		s.ErrorIs(err, storage.ErrEventNotFound)
+		s.ErrorIs(err, models.ErrEventNotFound)
 	})
 }
 
@@ -190,13 +190,13 @@ func (s *MemoryStorageTestSuite) TestDeleteEvent() {
 			s.NoError(err)
 
 			event, err := s.storage.GetEvent(ctx, eventID)
-			s.ErrorIs(err, storage.ErrEventNotFound)
+			s.ErrorIs(err, models.ErrEventNotFound)
 			s.Nil(event)
 		}
 	})
 	s.Run("non-existent event", func() {
 		err := s.storage.DeleteEvent(ctx, uuid.New())
-		s.ErrorIs(err, storage.ErrEventNotFound)
+		s.ErrorIs(err, models.ErrEventNotFound)
 	})
 }
 
@@ -234,8 +234,8 @@ func TestStorage_Concurrency(t *testing.T) {
 	}
 }
 
-func makeTestEvent(title string, dateStart time.Time) storage.Event {
-	return storage.Event{
+func makeTestEvent(title string, dateStart time.Time) models.Event {
+	return models.Event{
 		ID:               uuid.New(),
 		Title:            title,
 		DateStart:        dateStart,
@@ -246,8 +246,8 @@ func makeTestEvent(title string, dateStart time.Time) storage.Event {
 	}
 }
 
-func makeEventMap(events []storage.Event) map[uuid.UUID]storage.Event {
-	m := make(map[uuid.UUID]storage.Event, len(events))
+func makeEventMap(events []models.Event) map[uuid.UUID]models.Event {
+	m := make(map[uuid.UUID]models.Event, len(events))
 	for _, event := range events {
 		m[event.ID] = event
 	}

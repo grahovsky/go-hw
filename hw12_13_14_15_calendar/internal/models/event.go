@@ -1,4 +1,4 @@
-package storage
+package models
 
 import (
 	"errors"
@@ -9,13 +9,13 @@ import (
 )
 
 type Event struct {
-	ID               uuid.UUID `db:"id"`
-	Title            string    `db:"title"`
-	DateStart        time.Time `db:"date_start"`
-	DateEnd          time.Time `db:"date_end"`
-	UserID           uuid.UUID `db:"user_id"`
-	Description      string    `db:"description"`
-	DateNotification time.Time `db:"date_notification"`
+	ID               uuid.UUID `db:"id" json:"id"`
+	Title            string    `db:"title" json:"title"`
+	DateStart        time.Time `db:"date_start" json:"dateStart"`
+	DateEnd          time.Time `db:"date_end" json:"dateEnd"`
+	UserID           uuid.UUID `db:"user_id" json:"userId"`
+	Description      string    `db:"description" json:"description"`
+	DateNotification time.Time `db:"date_notification" json:"dateNotification"`
 }
 
 var (

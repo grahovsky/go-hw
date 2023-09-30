@@ -11,7 +11,9 @@ import (
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/app"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/config"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/logger"
+	internalgrpc "github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/server/grpc"
 	internalhttp "github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/server/http"
+	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/storage"
 	memorystorage "github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/storage/memory"
 	sqlstorage "github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/storage/sql"
 )
@@ -29,7 +31,7 @@ func main() {
 		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 	defer cancel()
 
-	var usedStorage app.Storage
+	var usedStorage storage.Storage
 	if config.Settings.Storage.Type == "sql" {
 		usedStorage = &sqlstorage.Storage{}
 	} else {
@@ -40,25 +42,36 @@ func main() {
 
 	// var calendar internalhttp.Application
 	calendar := app.New(usedStorage)
-	server := internalhttp.NewServer(calendar,
-		fmt.Sprintf("%v:%v", config.Settings.Server.Host, config.Settings.Server.Port))
+	httpSrv := internalhttp.NewServer(calendar,
+		fmt.Sprintf("%v:%v", config.Settings.Server.Host, config.Settings.Server.HTTPPort))
+	grpcSrv := internalgrpc.NewServer(calendar,
+		fmt.Sprintf("%v:%v", config.Settings.Server.Host, config.Settings.Server.GRPCPort))
 
 	go func() {
-		<-ctx.Done()
-
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
-		defer cancel()
-
-		if err := server.Stop(ctx); err != nil {
-			logger.Error("failed to stop http server: " + err.Error())
+		if err := httpSrv.Start(ctx); err != nil {
+			logger.Error("failed to start http server: " + err.Error())
+			cancel()
+			os.Exit(1)
 		}
+		logger.Info("http is running...")
 	}()
 
-	logger.Info("calendar is running...")
+	go func() {
+		if err := grpcSrv.Start(); err != nil {
+			logger.Error("failed to start grpc server: " + err.Error())
+			cancel()
+			os.Exit(1)
+		}
+		logger.Info("grpc is running...")
+	}()
 
-	if err := server.Start(ctx); err != nil {
-		logger.Error("failed to start http server: " + err.Error())
-		cancel()
-		os.Exit(1) //nolint:gocritic
+	<-ctx.Done()
+
+	ctx, cancel = context.WithTimeout(context.Background(), time.Second*3)
+	defer cancel()
+
+	grpcSrv.Stop()
+	if err := httpSrv.Stop(ctx); err != nil {
+		logger.Error("failed to stop http server: " + err.Error())
 	}
 }

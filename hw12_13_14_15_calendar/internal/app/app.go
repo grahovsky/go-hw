@@ -6,32 +6,54 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/logger"
+	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/models"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/storage"
 )
 
 type App struct {
-	storage Storage
+	storage storage.Storage
 }
 
-type Storage interface {
-	InitStorage()
-	AddEvent(ctx context.Context, event *storage.Event) error
-	GetEvent(ctx context.Context, id uuid.UUID) (*storage.Event, error)
-	GetEventsForPeriod(ctx context.Context, from, to time.Time) ([]storage.Event, error)
-	ListEvents(ctx context.Context, limit, low uint64) ([]storage.Event, error)
-	UpdateEvent(ctx context.Context, event *storage.Event) error
-	DeleteEvent(ctx context.Context, id uuid.UUID) error
-	Close() error
-}
-
-func New(storage Storage) *App {
+func New(storage storage.Storage) *App {
 	logger.Info("app start")
 	return &App{storage: storage}
 }
 
-func (a *App) AddEvent(ctx context.Context, event *storage.Event) error {
-	// TODO
-	return a.storage.AddEvent(ctx, event)
+func (a *App) AddEvent(ctx context.Context, event *models.Event) (uuid.UUID, error) {
+	if event.ID == uuid.Nil {
+		event.ID = uuid.New()
+	}
+	return event.ID, a.storage.AddEvent(ctx, event)
 }
 
-// TODO
+func (a *App) GetEvent(ctx context.Context, id uuid.UUID) (*models.Event, error) {
+	return a.storage.GetEvent(ctx, id)
+}
+
+func (a *App) GetEventsForPeriod(ctx context.Context, since, dateTo time.Time) ([]models.Event, error) {
+	return a.storage.GetEventsForPeriod(ctx, since, dateTo)
+}
+
+func (a *App) ListEvents(ctx context.Context, limit, low uint64) ([]models.Event, error) {
+	return a.storage.ListEvents(ctx, limit, low)
+}
+
+func (a *App) UpdateEvent(ctx context.Context, event *models.Event) error {
+	return a.storage.UpdateEvent(ctx, event)
+}
+
+func (a *App) DeleteEvent(ctx context.Context, id uuid.UUID) error {
+	return a.storage.DeleteEvent(ctx, id)
+}
+
+func (a *App) GetEventsOfDay(ctx context.Context, since time.Time) ([]models.Event, error) {
+	return a.storage.GetEventsForPeriod(ctx, since, since.AddDate(0, 0, 1))
+}
+
+func (a *App) GetEventsOfWeek(ctx context.Context, since time.Time) ([]models.Event, error) {
+	return a.storage.GetEventsForPeriod(ctx, since, since.AddDate(0, 0, 7))
+}
+
+func (a *App) GetEventsOfMonth(ctx context.Context, since time.Time) ([]models.Event, error) {
+	return a.storage.GetEventsForPeriod(ctx, since, since.AddDate(0, 1, 0))
+}

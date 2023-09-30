@@ -20,8 +20,9 @@ type Config struct {
 		Password string `mapstructure:"password" env:"DB_PASSWORD"`
 	} `mapstructure:"db"`
 	Server struct {
-		Host string `mapstructure:"host" env:"SRV_HOST"`
-		Port string `mapstructure:"port" env:"SRV_PORT"`
+		Host     string `mapstructure:"host" env:"SRV_HOST"`
+		HTTPPort string `mapstructure:"httpPort" env:"SRV_HTTP_PORT"`
+		GRPCPort string `mapstructure:"grpcPort" env:"SRV_GRPC_PORT"`
 	} `mapstructure:"server"`
 	DebugMessage string `mapstructure:"debugMessage"`
 	Some         string `mapstructure:"some"`

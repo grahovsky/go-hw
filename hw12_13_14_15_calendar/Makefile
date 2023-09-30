@@ -29,12 +29,15 @@ install-lint-deps:
 	(which golangci-lint > /dev/null) || curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v1.54.2
 
 lint: install-lint-deps
-	golangci-lint run ./...
+	golangci-lint run --timeout=90s ./...
 
 install-migrate-deps:
 	(which goose > /dev/null) || go install github.com/pressly/goose/v3/cmd/goose@latest
 
 migrate: install-migrate-deps
 	goose --dir=./migrations postgres "host=127.0.0.1 user=${DBUSER} password=${DBPASS} dbname=calendar sslmode=disable" up
+
+generate: 
+	go generate ./...
 
 .PHONY: build run build-img run-img version test lint
