@@ -81,7 +81,7 @@ func (s *MemoryStorageTestSuite) TestGetEventsForPeriod() {
 			s.Equal(s.events, events)
 		})
 		s.Run("1st and 2nd events", func() {
-			events, err := s.storage.GetEventsForPeriod(ctx, s.start.Add(time.Minute), s.start.Add(100*time.Second))
+			events, err := s.storage.GetEventsForPeriod(ctx, s.start, s.start.Add(120*time.Second))
 			s.NoError(err)
 			s.Equal(s.events[:2], events)
 		})

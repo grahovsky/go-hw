@@ -6,16 +6,18 @@ import (
 	"github.com/spf13/viper"
 )
 
+type Server struct {
+	Host     string `mapstructure:"host" env:"SRV_HOST"`
+	HTTPPort string `mapstructure:"httpPort" env:"SRV_HTTP_PORT"`
+	GRPCPort string `mapstructure:"grpcPort" env:"SRV_GRPC_PORT"`
+}
+
 type Calendar struct {
 	Log struct {
 		Level string `mapstructure:"level" env:"LOG_LEVEL"`
 	} `mapstructure:"log"`
-	Storage Storage `mapstructure:"storage"`
-	Server  struct {
-		Host     string `mapstructure:"host" env:"SRV_HOST"`
-		HTTPPort string `mapstructure:"httpPort" env:"SRV_HTTP_PORT"`
-		GRPCPort string `mapstructure:"grpcPort" env:"SRV_GRPC_PORT"`
-	} `mapstructure:"server"`
+	Storage      Storage `mapstructure:"storage"`
+	Server       Server  `mapstructure:"server"`
 	PrintVersion bool
 }
 

@@ -1,8 +1,8 @@
 log:
   level: "INFO"
 storage:
-  type: "sql"
-  #type: "in-memory"
+  #type: "sql"
+  type: "in-memory"
   db:
     name: "calendar"
     host: "server"
