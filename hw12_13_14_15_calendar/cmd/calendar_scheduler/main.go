@@ -24,17 +24,17 @@ func main() {
 		logger.Error(fmt.Sprintf("failed to creqte storage: %v", err))
 		os.Exit(1)
 	}
-	notifier, err := rmq.NewNotifier(config.SchedulerSettings.Rmq)
-	if err != nil {
-		logger.Error(fmt.Sprintf("failed to creqte RMQ notifier: %v", err))
-		os.Exit(1)
-	}
-
 	defer func() {
 		if err := st.Close(); err != nil {
 			logger.Error(fmt.Sprintf("faield to close storage: %v", err))
 		}
 	}()
+
+	notifier, err := rmq.NewNotifier(config.SchedulerSettings.Rmq)
+	if err != nil {
+		logger.Error(fmt.Sprintf("failed to creqte RMQ notifier: %v", err))
+		os.Exit(1) //nolint:gocritic
+	}
 	defer func() {
 		if err := notifier.Close(); err != nil {
 			logger.Error(fmt.Sprintf("faield to close RMQ notifier: %v", err))
@@ -55,17 +55,18 @@ func main() {
 	ticker := time.NewTicker(config.SchedulerSettings.Schedule)
 	defer ticker.Stop()
 
-loop:
-	for {
-		select {
-		case <-ctx.Done():
-			break loop
-		case <-ticker.C:
-			scheduler.LoadSchedule(ctx)
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+				scheduler.LoadSchedule(ctx)
+			}
 		}
-	}
+	}()
 	<-ctx.Done()
-	scheduler.Wait()
 
 	logger.Info("scheduler is stopping...")
+	scheduler.Wait()
 }
