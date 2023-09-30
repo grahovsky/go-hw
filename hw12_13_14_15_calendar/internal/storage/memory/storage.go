@@ -20,8 +20,9 @@ type (
 	}
 )
 
-func (s *Storage) InitStorage() {
+func (s *Storage) InitStorage() error {
 	s.events = make(Events)
+	return nil
 }
 
 func (s *Storage) Close() error {

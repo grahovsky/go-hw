@@ -2,12 +2,10 @@ package internalhttp
 
 import (
 	"context"
-	"fmt"
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/config"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/models"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/server/mocks"
 	"github.com/stretchr/testify/require"
@@ -58,7 +56,7 @@ func TestAppMockGetEvent(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.title, func(t *testing.T) {
 			appMock := tt.GetAppMock(t)
-			server := NewServer(appMock, fmt.Sprintf("%v:%v", config.CalendarSettings.Server.Host, config.CalendarSettings.Server.HTTPPort))
+			server := NewServer(appMock)
 
 			res, err := server.app.GetEvent(ctx, eventID)
 			if tt.err != nil {

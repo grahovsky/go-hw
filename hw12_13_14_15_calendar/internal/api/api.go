@@ -5,17 +5,17 @@ import (
 	"fmt"
 
 	pb "github.com/grahovsky/go-hw/hw12_13_14_15_calendar/api/apppb"
-	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/app"
+	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/calendar"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/mapper"
 )
 
-func NewAPI(app *app.App) pb.AppServer {
+func NewAPI(app *calendar.App) pb.AppServer {
 	return &api{app: app}
 }
 
 type api struct {
 	pb.UnimplementedAppServer
-	app *app.App
+	app *calendar.App
 }
 
 func (a *api) AddEvent(ctx context.Context, req *pb.AddEventRequest) (*pb.AddEventResponse, error) {

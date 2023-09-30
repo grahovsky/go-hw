@@ -1,4 +1,4 @@
-package sqlmodels
+package sqlstorage
 
 import (
 	"context"
@@ -19,8 +19,8 @@ type Storage struct { // TODO
 	db *sqlx.DB
 }
 
-func (s *Storage) InitStorage() {
-	s.Connect()
+func (s *Storage) InitStorage() error {
+	return s.Connect()
 }
 
 func (s *Storage) Connect() error {

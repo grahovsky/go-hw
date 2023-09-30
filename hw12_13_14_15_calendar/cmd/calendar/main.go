@@ -8,14 +8,12 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/app"
+	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/calendar"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/config"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/logger"
 	internalgrpc "github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/server/grpc"
 	internalhttp "github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/server/http"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/storage"
-	memorystorage "github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/storage/memory"
-	sqlstorage "github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/storage/sql"
 )
 
 func main() {
@@ -27,51 +25,56 @@ func main() {
 
 	logger.SetLogLevel(config.CalendarSettings.Log.Level)
 
+	st, err := storage.New(config.CalendarSettings.Storage.Type)
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
+	}
+	defer func() {
+		if err := st.Close(); err != nil {
+			logger.Error(fmt.Sprintf("faield to close storage: %v", err))
+		}
+	}()
+
+	calendar := calendar.New(st)
+	httpSrv := internalhttp.NewServer(calendar)
+	grpcSrv := internalgrpc.NewServer(calendar)
+
+	logger.Info("calendar is running...")
+
 	ctx, cancel := signal.NotifyContext(context.Background(),
-		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
+		syscall.SIGHUP,
+		syscall.SIGINT,
+		syscall.SIGTERM,
+		syscall.SIGQUIT)
 	defer cancel()
 
-	var usedStorage storage.Storage
-	if config.CalendarSettings.Storage.Type == "sql" {
-		usedStorage = &sqlstorage.Storage{}
-	} else {
-		usedStorage = &memorystorage.Storage{}
-	}
-	usedStorage.InitStorage()
-	defer usedStorage.Close()
-
-	// var calendar internalhttp.Application
-	calendar := app.New(usedStorage)
-	httpSrv := internalhttp.NewServer(calendar,
-		fmt.Sprintf("%v:%v", config.CalendarSettings.Server.Host, config.CalendarSettings.Server.HTTPPort))
-	grpcSrv := internalgrpc.NewServer(calendar,
-		fmt.Sprintf("%v:%v", config.CalendarSettings.Server.Host, config.CalendarSettings.Server.GRPCPort))
-
 	go func() {
+		logger.Info("http is running...")
 		if err := httpSrv.Start(ctx); err != nil {
-			logger.Error("failed to start http server: " + err.Error())
+			logger.Error(fmt.Sprintf("failed to start http server: %v", err))
 			cancel()
 			os.Exit(1)
 		}
-		logger.Info("http is running...")
 	}()
 
 	go func() {
+		logger.Info("grpc is running...")
 		if err := grpcSrv.Start(); err != nil {
-			logger.Error("failed to start grpc server: " + err.Error())
+			logger.Error(fmt.Sprintf("failed to start grpc server: %v", err))
 			cancel()
 			os.Exit(1)
 		}
-		logger.Info("grpc is running...")
 	}()
 
 	<-ctx.Done()
 
+	logger.Info("calendar is stopping...")
 	ctx, cancel = context.WithTimeout(context.Background(), time.Second*3)
 	defer cancel()
 
-	grpcSrv.Stop()
 	if err := httpSrv.Stop(ctx); err != nil {
-		logger.Error("failed to stop http server: " + err.Error())
+		logger.Error(fmt.Sprintf("failed to stop http server: %v", err))
 	}
+	grpcSrv.Stop()
 }

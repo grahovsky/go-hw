@@ -8,7 +8,7 @@ import (
 
 	"github.com/google/uuid"
 	pb "github.com/grahovsky/go-hw/hw12_13_14_15_calendar/api/apppb"
-	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/app"
+	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/calendar"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/models"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/storage"
 	memorystorage "github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/storage/memory"
@@ -37,7 +37,7 @@ func (s *apiTestSuite) SetupSuite() {
 	s.srv = grpc.NewServer()
 	s.listener = bufconn.Listen(bufferSize)
 
-	pb.RegisterAppServer(s.srv, NewAPI(app.New(s.storage)))
+	pb.RegisterAppServer(s.srv, NewAPI(calendar.New(s.storage)))
 	go func() {
 		s.NoError(s.srv.Serve(s.listener))
 	}()

@@ -1,11 +1,10 @@
-package app
+package calendar
 
 import (
 	"context"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/logger"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/models"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/storage"
 )
@@ -15,7 +14,6 @@ type App struct {
 }
 
 func New(storage storage.Storage) *App {
-	logger.Info("app start")
 	return &App{storage: storage}
 }
 
