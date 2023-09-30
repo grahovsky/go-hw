@@ -18,6 +18,14 @@ type Event struct {
 	DateNotification time.Time `db:"date_notification" json:"dateNotification"`
 }
 
+type Notification struct {
+	ID        uuid.UUID `json:"id"`
+	EventID   uuid.UUID `json:"eventId"`
+	Title     string    `json:"title"`
+	EventDate time.Time `json:"eventTime"`
+	UserID    uuid.UUID `json:"userId"`
+}
+
 var (
 	ErrEventID            = errors.New("Event ID is not correct")
 	ErrEventNotFound      = errors.New("Event not found")
@@ -29,5 +37,9 @@ func (e *Event) String() string {
 }
 
 func (e *Event) InPeriod(from time.Time, to time.Time) bool {
-	return e.DateStart.Before(to) && !e.DateEnd.Before(from)
+	return e.DateStart.Before(to) && e.DateEnd.After(from)
+}
+
+func (e *Event) IsToNotify(from time.Time, to time.Time) bool {
+	return e.DateNotification.Before(to) && e.DateNotification.After(from)
 }

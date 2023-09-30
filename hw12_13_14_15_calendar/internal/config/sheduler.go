@@ -1,6 +1,8 @@
 package config
 
 import (
+	"time"
+
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/logger"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -10,23 +12,9 @@ type Scheduler struct {
 	Log struct {
 		Level string `mapstructure:"level" env:"LOG_LEVEL"`
 	} `mapstructure:"log"`
-	Storage struct {
-		Type string `mapstructure:"type" env:"STORAGE_TYPE"`
-	} `mapstructure:"storage"`
-	DB struct {
-		Name     string `mapstructure:"name" env:"DB_NAME"`
-		Host     string `mapstructure:"host" env:"DB_HOST"`
-		User     string `mapstructure:"user" env:"DB_USER"`
-		Password string `mapstructure:"password" env:"DB_PASSWORD"`
-	} `mapstructure:"db"`
-	Rmq struct {
-		Host     string `mapstructure:"host" env:"RMQ_HOST"`
-		Port     string `mapstructure:"port" env:"RMQ_PORT"`
-		User     string `mapstructure:"user" env:"RMQ_USER"`
-		Password string `mapstructure:"password" env:"RMQ_PASSWORD"`
-		Queue    string `mapstructure:"queue" env:"RMQ_QUEUE"`
-	} `mapstructure:"rmq"`
-	Schedule string `mapstructure:"schedule" env:"SHEDULE"`
+	Storage  Storage       `mapstructure:"storage"`
+	Rmq      RMQ           `mapstructure:"rmq"`
+	Schedule time.Duration `mapstructure:"schedule" env:"SHEDULE"`
 }
 
 var SchedulerSettings *Scheduler

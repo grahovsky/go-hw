@@ -10,16 +10,8 @@ type Calendar struct {
 	Log struct {
 		Level string `mapstructure:"level" env:"LOG_LEVEL"`
 	} `mapstructure:"log"`
-	Storage struct {
-		Type string `mapstructure:"type" env:"STORAGE_TYPE"`
-	} `mapstructure:"storage"`
-	DB struct {
-		Name     string `mapstructure:"name" env:"DB_NAME"`
-		Host     string `mapstructure:"host" env:"DB_HOST"`
-		User     string `mapstructure:"user" env:"DB_USER"`
-		Password string `mapstructure:"password" env:"DB_PASSWORD"`
-	} `mapstructure:"db"`
-	Server struct {
+	Storage Storage `mapstructure:"storage"`
+	Server  struct {
 		Host     string `mapstructure:"host" env:"SRV_HOST"`
 		HTTPPort string `mapstructure:"httpPort" env:"SRV_HTTP_PORT"`
 		GRPCPort string `mapstructure:"grpcPort" env:"SRV_GRPC_PORT"`
