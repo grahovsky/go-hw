@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-type Config struct {
+type Calendar struct {
 	Log struct {
 		Level string `mapstructure:"level" env:"LOG_LEVEL"`
 	} `mapstructure:"log"`
@@ -24,22 +24,20 @@ type Config struct {
 		HTTPPort string `mapstructure:"httpPort" env:"SRV_HTTP_PORT"`
 		GRPCPort string `mapstructure:"grpcPort" env:"SRV_GRPC_PORT"`
 	} `mapstructure:"server"`
-	DebugMessage string `mapstructure:"debugMessage"`
-	Some         string `mapstructure:"some"`
 	PrintVersion bool
 }
 
-var Settings *Config
+var CalendarSettings *Calendar
 
-func init() {
-	defaultSettings := defaultSettings()
-	Settings = &defaultSettings
+func InitCalendarSettings() {
+	defaultSettings := defaultCalendarSettings()
+	CalendarSettings = &defaultSettings
 
 	versionFlag := pflag.Bool("version", false, "version app")
 	pflag.String("loglevel", "INFO", "log level app")
-	pflag.String("config", "./configs/config.yaml", "Path to configuration file")
-	pflag.String("server_host", "127.0.0.1", "server hostname")
-	pflag.String("server_port", "8080", "server port")
+	pflag.String("config", "./configs/calendar.yaml", "Path to configuration file")
+	pflag.String("server_host", "0.0.0.0", "server hostname")
+	pflag.String("server_httpport", "8080", "server http port")
 
 	pflag.Parse()
 
@@ -58,18 +56,18 @@ func init() {
 		logger.Error(err.Error())
 	}
 
-	if err := viper.Unmarshal(&Settings); err != nil {
+	if err := viper.Unmarshal(&CalendarSettings); err != nil {
 		logger.Error(err.Error())
 	}
 
 	envLogLevel := viper.Get("LOG_LEVEL")
 	if envLogLevel != nil {
-		Settings.Log.Level = envLogLevel.(string)
+		CalendarSettings.Log.Level = envLogLevel.(string)
 	}
 }
 
-func defaultSettings() Config {
-	return Config{
+func defaultCalendarSettings() Calendar {
+	return Calendar{
 		Log: struct {
 			Level string "mapstructure:\"level\" env:\"LOG_LEVEL\""
 		}{Level: "DEBUG"},

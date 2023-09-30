@@ -19,20 +19,20 @@ import (
 )
 
 func main() {
-	if config.Settings.PrintVersion {
+	config.InitCalendarSettings()
+	if config.CalendarSettings.PrintVersion {
 		PrintVersion()
 		return
 	}
 
-	logger.SetLogLevel(config.Settings.Log.Level)
-	logger.Debug(config.Settings.DebugMessage)
+	logger.SetLogLevel(config.CalendarSettings.Log.Level)
 
 	ctx, cancel := signal.NotifyContext(context.Background(),
 		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 	defer cancel()
 
 	var usedStorage storage.Storage
-	if config.Settings.Storage.Type == "sql" {
+	if config.CalendarSettings.Storage.Type == "sql" {
 		usedStorage = &sqlstorage.Storage{}
 	} else {
 		usedStorage = &memorystorage.Storage{}
@@ -43,9 +43,9 @@ func main() {
 	// var calendar internalhttp.Application
 	calendar := app.New(usedStorage)
 	httpSrv := internalhttp.NewServer(calendar,
-		fmt.Sprintf("%v:%v", config.Settings.Server.Host, config.Settings.Server.HTTPPort))
+		fmt.Sprintf("%v:%v", config.CalendarSettings.Server.Host, config.CalendarSettings.Server.HTTPPort))
 	grpcSrv := internalgrpc.NewServer(calendar,
-		fmt.Sprintf("%v:%v", config.Settings.Server.Host, config.Settings.Server.GRPCPort))
+		fmt.Sprintf("%v:%v", config.CalendarSettings.Server.Host, config.CalendarSettings.Server.GRPCPort))
 
 	go func() {
 		if err := httpSrv.Start(ctx); err != nil {

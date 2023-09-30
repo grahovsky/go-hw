@@ -12,5 +12,3 @@ server:
   host: "0.0.0.0"
   httpPort: "8081"
   grpcPort: "8082"
-debugMessage: "debug message test"
-some: "some2"
