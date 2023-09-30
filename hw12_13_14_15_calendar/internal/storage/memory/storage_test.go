@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/config"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/models"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -207,7 +208,7 @@ func TestStorage(t *testing.T) {
 func TestStorage_Concurrency(t *testing.T) {
 	ctx := context.Background()
 	s := &Storage{}
-	s.InitStorage()
+	s.InitStorage(config.Storage{})
 	count := 100
 
 	var wg sync.WaitGroup

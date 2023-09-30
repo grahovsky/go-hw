@@ -10,13 +10,7 @@ type Sender struct {
 	Log struct {
 		Level string `mapstructure:"level" env:"LOG_LEVEL"`
 	} `mapstructure:"log"`
-	Rmq struct {
-		Host     string `mapstructure:"host" env:"RMQ_HOST"`
-		Port     string `mapstructure:"port" env:"RMQ_PORT"`
-		User     string `mapstructure:"user" env:"RMQ_USER"`
-		Password string `mapstructure:"password" env:"RMQ_PASSWORD"`
-		Queue    string `mapstructure:"queue" env:"RMQ_QUEUE"`
-	} `mapstructure:"rmq"`
+	Rmq RMQ `mapstructure:"rmq"`
 }
 
 var SenderSettings *Sender

@@ -25,7 +25,7 @@ func main() {
 
 	logger.SetLogLevel(config.CalendarSettings.Log.Level)
 
-	st, err := storage.New(config.CalendarSettings.Storage.Type)
+	st, err := storage.New(config.CalendarSettings.Storage)
 	if err != nil {
 		logger.Error(err.Error())
 		os.Exit(1)
