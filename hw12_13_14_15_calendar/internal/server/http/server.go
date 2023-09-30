@@ -19,7 +19,7 @@ type HTTPServer struct {
 	srv *http.Server
 }
 
-func NewServer(app server.Application) *HTTPServer {
+func NewServer(app server.Application, srvCf config.Server) *HTTPServer {
 	serv := &HTTPServer{app: app}
 
 	router := mux.NewRouter()
@@ -34,7 +34,7 @@ func NewServer(app server.Application) *HTTPServer {
 	router.HandleFunc("/UpdateEvent", serv.UpdateEvent).Methods("POST")
 	router.HandleFunc("/DeleteEvent", serv.DeleteEvent).Methods("DELETE")
 
-	addr := net.JoinHostPort(config.CalendarSettings.Server.Host, config.CalendarSettings.Server.HTTPPort)
+	addr := net.JoinHostPort(srvCf.Host, srvCf.HTTPPort)
 	serv.srv = &http.Server{
 		Addr:        addr,
 		ReadTimeout: 5 * time.Second,

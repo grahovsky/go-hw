@@ -20,7 +20,7 @@ func InitSenderSettings() {
 	SenderSettings = &defaultSenderSettings
 
 	pflag.String("loglevel", "INFO", "log level app")
-	pflag.String("config", "./config/sender.yaml", "Path to Senderuration file")
+	pflag.String("config", "./configs/sender.yaml", "Path to Sender config file")
 	pflag.String("rmq_host", "0.0.0.0", "rmq hostname")
 	pflag.String("rmq_port", "5672", "rmq port")
 
@@ -28,7 +28,7 @@ func InitSenderSettings() {
 
 	viper.BindPFlags(pflag.CommandLine)
 
-	viper.SetConfigFile(viper.Get("Sender").(string))
+	viper.SetConfigFile(viper.Get("config").(string))
 	viper.AutomaticEnv()
 	viper.SetEnvPrefix("APP")
 

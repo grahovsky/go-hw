@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/config"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/models"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/server/mocks"
 	"github.com/stretchr/testify/require"
@@ -56,7 +57,7 @@ func TestAppMockGetEvent(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.title, func(t *testing.T) {
 			appMock := tt.GetAppMock(t)
-			server := NewServer(appMock)
+			server := NewServer(appMock, config.Server{Host: "0.0.0.0", HTTPPort: "8081"})
 
 			res, err := server.app.GetEvent(ctx, eventID)
 			if tt.err != nil {
