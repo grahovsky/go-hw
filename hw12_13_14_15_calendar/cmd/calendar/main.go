@@ -38,7 +38,7 @@ func main() {
 
 	calendar := calendar.New(st)
 	httpSrv := internalhttp.NewServer(calendar, config.CalendarSettings.Server)
-	grpcSrv := internalgrpc.NewServer(calendar)
+	grpcSrv := internalgrpc.NewServer(calendar, config.CalendarSettings.Server)
 
 	logger.Info("calendar is running...")
 
