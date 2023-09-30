@@ -21,7 +21,7 @@ type (
 	}
 )
 
-func (s *Storage) InitStorage(settings config.Storage) error {
+func (s *Storage) InitStorage(_ config.Storage) error {
 	s.events = make(Events)
 	return nil
 }

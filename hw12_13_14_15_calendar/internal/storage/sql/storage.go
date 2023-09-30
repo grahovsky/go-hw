@@ -147,7 +147,6 @@ func (s *Storage) GetEventsToNotify(ctx context.Context, from, to time.Time) ([]
 	WHERE date_notification >= $1 AND date_notification < $2
 	ORDER BY date_start
 	`
-
 	events := make([]models.Event, 0)
 	if err := s.db.SelectContext(ctx, &events, getEventToNotifyQuery, from, to); err != nil {
 		return nil, fmt.Errorf("get events to notify: %w", err)
