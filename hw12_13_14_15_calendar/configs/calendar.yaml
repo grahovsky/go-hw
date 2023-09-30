@@ -5,7 +5,7 @@ storage:
   #type: "in-memory"
   db:
     name: "calendar"
-    host: "arch-tc"
+    host: "server"
     user: "postgres"
     password: "postgres"
 server:

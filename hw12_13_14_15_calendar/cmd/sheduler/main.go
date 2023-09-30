@@ -10,7 +10,7 @@ import (
 
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/config"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/logger"
-	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/notify"
+	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/rmq"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/schedule"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/storage"
 )
@@ -21,16 +21,25 @@ func main() {
 
 	st, err := storage.New(config.SchedulerSettings.Storage)
 	if err != nil {
-		logger.Error(err.Error())
+		logger.Error(fmt.Sprintf("failed to creqte storage: %v", err))
 		os.Exit(1)
 	}
+	notifier, err := rmq.NewNotifier(config.SchedulerSettings.Rmq)
+	if err != nil {
+		logger.Error(fmt.Sprintf("failed to creqte RMQ notifier: %v", err))
+		os.Exit(1)
+	}
+
 	defer func() {
 		if err := st.Close(); err != nil {
 			logger.Error(fmt.Sprintf("faield to close storage: %v", err))
 		}
 	}()
-
-	notifier := notify.NewLogNotifier()
+	defer func() {
+		if err := notifier.Close(); err != nil {
+			logger.Error(fmt.Sprintf("faield to close RMQ notifier: %v", err))
+		}
+	}()
 
 	ctx, cancel := signal.NotifyContext(context.Background(),
 		syscall.SIGHUP,

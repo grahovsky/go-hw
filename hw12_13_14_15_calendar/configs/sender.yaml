@@ -1,8 +1,8 @@
 log:
   level: "INFO"
 rmq:
-  host: "localhost"
+  host: "server"
   port: "5672"
   user: "guest"
   password: "guest"
-  queue: "event_notifications"
+  queue: "e_notifications"

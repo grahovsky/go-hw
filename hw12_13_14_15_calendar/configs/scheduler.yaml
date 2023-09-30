@@ -5,13 +5,13 @@ storage:
   #type: "in-memory"
   db:
     name: "calendar"
-    host: "arch-tc"
+    host: "server"
     user: "postgres"
     password: "postgres"
 rmq:
-  host: "0.0.0.0"
+  host: "server"
   port: "5672"
   user: "guest"
   password: "guest"
-  queue: event_notifications
+  queue: "e_notifications"
 schedule: "10s"
