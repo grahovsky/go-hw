@@ -1,12 +1,16 @@
-BIN_CALENDAR := "./bin/calendar"
-BIN_SCHEDULER := "./bin/scheduler"
-BIN_SENDER := "./bin/sender"
-DOCKER_IMG_CALENDAR="calendar:develop"
-DOCKER_IMG_SCHEDULER="scheduler:develop"
-DOCKER_IMG_SENDER="sender:develop"
+BIN_CALENDAR = "./bin/calendar"
+BIN_SCHEDULER = "./bin/scheduler"
+BIN_SENDER = "./bin/sender"
+
+DOCKER_IMG_CALENDAR = "calendar:develop"
+DOCKER_IMG_SCHEDULER = "scheduler:develop"
+DOCKER_IMG_SENDER = "sender:develop"
 
 GIT_HASH := $(shell git log --format="%h" -n 1)
 LDFLAGS := -X main.release="develop" -X main.buildDate=$(shell date -u +%Y-%m-%dT%H:%M:%S) -X main.gitHash=$(GIT_HASH)
+
+DBUSER ?= "postgres"
+DBPASS ?= "postgres"
 
 build-calendar:
 	go build -v -o $(BIN_CALENDAR) -ldflags "$(LDFLAGS)" ./cmd/calendar
@@ -81,5 +85,11 @@ migrate: install-migrate-deps
 
 generate: 
 	go generate ./...
+
+compose-up:
+	docker compose -f deployments/third-party-compose.yaml --project-directory deployments up -d
+
+compose-down:
+	docker compose -f deployments/third-party-compose.yaml --project-directory deployments down
 
 .PHONY: build-all run-calendar run-img-all version test lint
