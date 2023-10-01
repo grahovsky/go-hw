@@ -4,11 +4,11 @@ DROP TABLE IF EXISTS "events";
 CREATE TABLE "public"."events" (
     "id" uuid DEFAULT gen_random_uuid() NOT NULL,
     "title" character(50) NOT NULL,
-    "date_start" timestamp NOT NULL,
-    "date_end" timestamp,
+    "date_start" timestamptz NOT NULL,
+    "date_end" timestamptz,
     "user_id" uuid NULL,
     "description" text NOT NULL,
-    "date_notification" timestamp,
+    "date_notification" timestamptz,
     CONSTRAINT "events_pkey" PRIMARY KEY ("id"),
     CONSTRAINT "valid_period"            CHECK (date_start < date_end),
     CONSTRAINT "valid_date_notification" CHECK (date_notification <= date_start)
