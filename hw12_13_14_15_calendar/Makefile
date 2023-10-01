@@ -5,6 +5,7 @@ BIN_SENDER = "./bin/sender"
 DOCKER_IMG_CALENDAR = "calendar:develop"
 DOCKER_IMG_SCHEDULER = "scheduler:develop"
 DOCKER_IMG_SENDER = "sender:develop"
+DOCKER_IMG_MIGRATIONS = "migrations:develop"
 
 GIT_HASH := $(shell git log --format="%h" -n 1)
 LDFLAGS := -X main.release="develop" -X main.buildDate=$(shell date -u +%Y-%m-%dT%H:%M:%S) -X main.gitHash=$(GIT_HASH)
@@ -52,7 +53,12 @@ build-img-sender:
 		-t $(DOCKER_IMG_SENDER) \
 		-f build/sender.Dockerfile .
 
-build-img-all: build-img-calendar build-img-scheduler build-img-sender
+build-img-migrations:
+	docker build \
+		-t $(DOCKER_IMG_MIGRATIONS) \
+		-f build/migrations.Dockerfile .
+
+build-img-all: build-img-calendar build-img-scheduler build-img-sender build-img-migrations
 
 run-img-calendar: build-img-calendar
 	docker run --network host $(DOCKER_IMG_CALENDAR)
@@ -95,5 +101,8 @@ compose-down:
 # calendar-up: build-img-all
 calendar-up:
 	docker compose -f deployments/calendar-compose.yaml --project-directory deployments up
+
+calendar-down:
+	docker compose -f deployments/calendar-compose.yaml --project-directory deployments down
 
 .PHONY: build-all run-calendar run-img-all version test lint
