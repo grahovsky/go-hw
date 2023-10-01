@@ -34,8 +34,8 @@ services:
     image: calendar:develop
     restart: on-failure
     ports:
-      - 8081:8081
-      - 8082:8082
+      - 8888:8081
+      - 8889:8082
     command: sh -c "sleep 10 && $$BIN_FILE --config $$CONFIG_FILE"
     depends_on:
       - db
