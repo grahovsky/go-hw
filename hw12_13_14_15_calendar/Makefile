@@ -1,26 +1,69 @@
-BIN := "./bin/calendar"
-DOCKER_IMG="calendar:develop"
+BIN_CALENDAR := "./bin/calendar"
+BIN_SCHEDULER := "./bin/scheduler"
+BIN_SENDER := "./bin/sender"
+DOCKER_IMG_CALENDAR="calendar:develop"
+DOCKER_IMG_SCHEDULER="scheduler:develop"
+DOCKER_IMG_SENDER="sender:develop"
 
 GIT_HASH := $(shell git log --format="%h" -n 1)
 LDFLAGS := -X main.release="develop" -X main.buildDate=$(shell date -u +%Y-%m-%dT%H:%M:%S) -X main.gitHash=$(GIT_HASH)
 
-build:
-	go build -v -o $(BIN) -ldflags "$(LDFLAGS)" ./cmd/calendar
+build-calendar:
+	go build -v -o $(BIN_CALENDAR) -ldflags "$(LDFLAGS)" ./cmd/calendar
 
-run: build
-	$(BIN) --config ./configs/config.yaml
+build-scheduler:
+	go build -v -o $(BIN_SCHEDULER) -ldflags "$(LDFLAGS)" ./cmd/calendar_scheduler
 
-build-img:
+build-sender:
+	go build -v -o $(BIN_SENDER) -ldflags "$(LDFLAGS)" ./cmd/calendar_sender
+
+build-all: build-calendar build-scheduler build-sender
+
+run-calendar: build-calendar
+	$(BIN_CALENDAR) --config ./configs/calendar.yaml && \
+
+run-scheduler: build-scheduler
+	$(BIN_SCHEDULER) --config ./configs/scheduler.yaml && \
+
+run-sender: build-sender
+	$(BIN_SENDER) --config ./configs/sender.yaml
+
+run-all: run-calendar run-scheduler run-sender
+
+build-img-calendar:
 	docker build \
 		--build-arg=LDFLAGS="$(LDFLAGS)" \
-		-t $(DOCKER_IMG) \
-		-f build/Dockerfile .
+		-t $(DOCKER_IMG_CALENDAR) \
+		-f build/calendar.Dockerfile .
 
-run-img: build-img
-	docker run -p 8080:8080 $(DOCKER_IMG)
+build-img-scheduler:
+	docker build \
+		--build-arg=LDFLAGS="$(LDFLAGS)" \
+		-t $(DOCKER_IMG_SCHEDULER) \
+		-f build/scheduler.Dockerfile .
 
-version: build
-	$(BIN) --version
+build-img-sender:
+	docker build \
+		--build-arg=LDFLAGS="$(LDFLAGS)" \
+		-t $(DOCKER_IMG_SENDER) \
+		-f build/sender.Dockerfile .
+
+build-img-all: build-img-calendar build-img-scheduler build-img-sender
+
+run-img-calendar: build-img-calendar
+	docker run --network host $(DOCKER_IMG_CALENDAR)
+
+run-img-scheduler: build-img-scheduler
+	docker run --network host $(DOCKER_IMG_SCHEDULER)
+
+run-img-sender: build-img-sender
+	docker run --network host $(DOCKER_IMG_SENDER)
+
+run-img-all:
+	run-img-calendar run-img-scheduler run-img-sender
+
+version: build-calendar
+	$(BIN_CALENDAR) --version
 
 test:
 	go test -race ./internal/...
@@ -35,9 +78,9 @@ install-migrate-deps:
 	(which goose > /dev/null) || go install github.com/pressly/goose/v3/cmd/goose@latest
 
 migrate: install-migrate-deps
-	goose --dir=./migrations postgres "host=127.0.0.1 user=${DBUSER} password=${DBPASS} dbname=calendar sslmode=disable" up
+	goose --dir=./migrations postgres "host=0.0.0.0 user=${DBUSER} password=${DBPASS} dbname=calendar sslmode=disable" up
 
 generate: 
 	go generate ./...
 
-.PHONY: build run build-img run-img version test lint
+.PHONY: run-all run-img-all version test lint
