@@ -19,16 +19,16 @@ build-sender:
 
 build-all: build-calendar build-scheduler build-sender
 
+build: build-all
+
 run-calendar: build-calendar
-	$(BIN_CALENDAR) --config ./configs/calendar.yaml && \
+	$(BIN_CALENDAR) --config ./configs/calendar.yaml
 
 run-scheduler: build-scheduler
-	$(BIN_SCHEDULER) --config ./configs/scheduler.yaml && \
+	$(BIN_SCHEDULER) --config ./configs/scheduler.yaml
 
 run-sender: build-sender
 	$(BIN_SENDER) --config ./configs/sender.yaml
-
-run-all: run-calendar run-scheduler run-sender
 
 build-img-calendar:
 	docker build \
@@ -59,8 +59,7 @@ run-img-scheduler: build-img-scheduler
 run-img-sender: build-img-sender
 	docker run --network host $(DOCKER_IMG_SENDER)
 
-run-img-all:
-	run-img-calendar run-img-scheduler run-img-sender
+run-img-all: run-img-calendar run-img-scheduler run-img-sender
 
 version: build-calendar
 	$(BIN_CALENDAR) --version
@@ -83,4 +82,4 @@ migrate: install-migrate-deps
 generate: 
 	go generate ./...
 
-.PHONY: run-all run-img-all version test lint
+.PHONY: build-all run-calendar run-img-all version test lint
