@@ -34,7 +34,7 @@ type apiTestSuite struct {
 
 func (s *apiTestSuite) SetupSuite() {
 	s.storage = &memorystorage.Storage{}
-	s.storage.InitStorage(config.Storage{})
+	s.storage.InitStorage(&config.Storage{})
 	s.srv = grpc.NewServer()
 	s.listener = bufconn.Listen(bufferSize)
 

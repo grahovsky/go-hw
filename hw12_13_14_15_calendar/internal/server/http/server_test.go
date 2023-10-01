@@ -113,7 +113,7 @@ func TestServerHandlers(t *testing.T) {
 			require.NoError(t, err)
 
 			appMock := tc.appMock(t)
-			serv := NewServer(appMock, config.Server{Host: "0.0.0.0", HTTPPort: "8081"})
+			serv := NewServer(appMock, &config.Server{Host: "0.0.0.0", HTTPPort: "8081"})
 
 			rr := httptest.NewRecorder()
 			serv.srv.Handler.ServeHTTP(rr, req)

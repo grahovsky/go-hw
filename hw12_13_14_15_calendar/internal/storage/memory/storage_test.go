@@ -208,7 +208,7 @@ func TestStorage(t *testing.T) {
 func TestStorage_Concurrency(t *testing.T) {
 	ctx := context.Background()
 	s := &Storage{}
-	s.InitStorage(config.Storage{})
+	s.InitStorage(&config.Storage{})
 	count := 100
 
 	var wg sync.WaitGroup
