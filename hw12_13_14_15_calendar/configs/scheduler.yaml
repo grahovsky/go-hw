@@ -5,11 +5,11 @@ storage:
   #type: "in-memory"
   db:
     name: "calendar"
-    host: "localhost"
+    host: "db"
     user: "postgres"
     password: "postgres"
 rmq:
-  host: "localhost"
+  host: "rabbit"
   port: "5672"
   user: "guest"
   password: "guest"

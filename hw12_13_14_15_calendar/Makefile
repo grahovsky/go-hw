@@ -92,4 +92,8 @@ compose-up:
 compose-down:
 	docker compose -f deployments/third-party-compose.yaml --project-directory deployments down
 
+# calendar-up: build-img-all
+calendar-up:
+	docker compose -f deployments/calendar-compose.yaml --project-directory deployments up
+
 .PHONY: build-all run-calendar run-img-all version test lint

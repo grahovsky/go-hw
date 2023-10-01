@@ -1,7 +1,7 @@
 log:
   level: "INFO"
 rmq:
-  host: "localhost"
+  host: "rabbit"
   port: "5672"
   user: "guest"
   password: "guest"
