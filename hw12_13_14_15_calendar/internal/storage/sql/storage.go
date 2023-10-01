@@ -19,11 +19,11 @@ type Storage struct { // TODO
 	db *sqlx.DB
 }
 
-func (s *Storage) InitStorage(settings config.Storage) error {
+func (s *Storage) InitStorage(settings *config.Storage) error {
 	return s.Connect(settings)
 }
 
-func (s *Storage) Connect(settings config.Storage) error {
+func (s *Storage) Connect(settings *config.Storage) error {
 	dsn := getDsn(settings)
 	db, err := sqlx.Connect("pgx", dsn)
 	if err != nil {
@@ -34,7 +34,7 @@ func (s *Storage) Connect(settings config.Storage) error {
 	return nil
 }
 
-func getDsn(settings config.Storage) string {
+func getDsn(settings *config.Storage) string {
 	dbURL := &url.URL{
 		Scheme:   "postgres",
 		Host:     settings.DB.Host,

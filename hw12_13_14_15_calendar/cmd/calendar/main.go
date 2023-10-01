@@ -25,7 +25,7 @@ func main() {
 
 	logger.SetLogLevel(config.CalendarSettings.Log.Level)
 
-	st, err := storage.New(config.CalendarSettings.Storage)
+	st, err := storage.New(&config.CalendarSettings.Storage)
 	if err != nil {
 		logger.Error(err.Error())
 		os.Exit(1)
@@ -37,8 +37,8 @@ func main() {
 	}()
 
 	calendar := calendar.New(st)
-	httpSrv := internalhttp.NewServer(calendar, config.CalendarSettings.Server)
-	grpcSrv := internalgrpc.NewServer(calendar, config.CalendarSettings.Server)
+	httpSrv := internalhttp.NewServer(calendar, &config.CalendarSettings.Server)
+	grpcSrv := internalgrpc.NewServer(calendar, &config.CalendarSettings.Server)
 
 	logger.Info("calendar is running...")
 

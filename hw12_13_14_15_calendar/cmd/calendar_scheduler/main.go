@@ -19,7 +19,7 @@ func main() {
 	config.InitSchedulerSettings()
 	logger.SetLogLevel(config.SchedulerSettings.Log.Level)
 
-	st, err := storage.New(config.SchedulerSettings.Storage)
+	st, err := storage.New(&config.SchedulerSettings.Storage)
 	if err != nil {
 		logger.Error(fmt.Sprintf("failed to creqte storage: %v", err))
 		os.Exit(1)
@@ -30,7 +30,7 @@ func main() {
 		}
 	}()
 
-	notifier, err := rmq.NewNotifier(config.SchedulerSettings.Rmq)
+	notifier, err := rmq.NewNotifier(&config.SchedulerSettings.Rmq)
 	if err != nil {
 		logger.Error(fmt.Sprintf("failed to creqte RMQ notifier: %v", err))
 		os.Exit(1) //nolint:gocritic

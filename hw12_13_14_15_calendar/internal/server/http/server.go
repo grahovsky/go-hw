@@ -19,7 +19,7 @@ type HTTPServer struct {
 	srv *http.Server
 }
 
-func NewServer(app server.Application, srvCf config.Server) *HTTPServer {
+func NewServer(app server.Application, srvCf *config.Server) *HTTPServer {
 	serv := &HTTPServer{app: app}
 
 	router := mux.NewRouter()

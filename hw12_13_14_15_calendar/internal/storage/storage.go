@@ -12,7 +12,7 @@ import (
 )
 
 type Storage interface {
-	InitStorage(settings config.Storage) error
+	InitStorage(settings *config.Storage) error
 	AddEvent(ctx context.Context, event *models.Event) error
 	GetEvent(ctx context.Context, id uuid.UUID) (*models.Event, error)
 	GetEventsForPeriod(ctx context.Context, from, to time.Time) ([]models.Event, error)
@@ -24,7 +24,7 @@ type Storage interface {
 	GetEventsToNotify(ctx context.Context, from, to time.Time) ([]models.Event, error)
 }
 
-func New(settings config.Storage) (Storage, error) {
+func New(settings *config.Storage) (Storage, error) {
 	var st Storage
 
 	if settings.Type == "sql" {

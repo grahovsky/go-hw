@@ -63,7 +63,7 @@ func (q *Queue) ConsumeChannel(ctx context.Context, consumer string) (<-chan []b
 	return ch, err
 }
 
-func NewQueue(rmqCf config.RMQ, contentType string) (*Queue, error) {
+func NewQueue(rmqCf *config.RMQ, contentType string) (*Queue, error) {
 	conn, err := amqp.Dial(amqURI(rmqCf))
 	if err != nil {
 		return nil, fmt.Errorf("connect to rmq %w", err)
@@ -87,7 +87,7 @@ func NewQueue(rmqCf config.RMQ, contentType string) (*Queue, error) {
 	}, nil
 }
 
-func amqURI(rmqCf config.RMQ) string {
+func amqURI(rmqCf *config.RMQ) string {
 	port, err := strconv.Atoi(rmqCf.Port)
 	if err != nil {
 		logger.Error(err.Error())

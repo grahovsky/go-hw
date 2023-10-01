@@ -25,7 +25,7 @@ func (n *Notifier) Close() error {
 	return n.queue.Close()
 }
 
-func NewNotifier(rmqCf config.RMQ) (*Notifier, error) {
+func NewNotifier(rmqCf *config.RMQ) (*Notifier, error) {
 	queue, err := NewQueue(rmqCf, "application/json")
 	if err != nil {
 		return nil, fmt.Errorf("create queue: %w", err)
