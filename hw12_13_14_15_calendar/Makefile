@@ -53,12 +53,7 @@ build-img-sender:
 		-t $(DOCKER_IMG_SENDER) \
 		-f build/sender.Dockerfile .
 
-build-img-migrations:
-	docker build \
-		-t $(DOCKER_IMG_MIGRATIONS) \
-		-f build/migrations.Dockerfile .
-
-build-img-all: build-img-calendar build-img-scheduler build-img-sender build-img-migrations
+build-img-all: build-img-calendar build-img-scheduler build-img-sender
 
 run-img-calendar: build-img-calendar
 	docker run --network host $(DOCKER_IMG_CALENDAR)
