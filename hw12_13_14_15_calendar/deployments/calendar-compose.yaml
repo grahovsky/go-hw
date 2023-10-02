@@ -5,6 +5,7 @@ services:
   postgres:
     image: postgres
     restart: always
+    user: postgres
     environment:
       POSTGRES_PASSWORD: postgres
       PGDATA: /var/lib/postgresql/data
@@ -43,7 +44,9 @@ services:
         condition: service_healthy
   
   calendar:
-    image: calendar:develop
+    build:
+      context: ..
+      dockerfile: build/calendar.Dockerfile
     restart: on-failure
     ports:
       - 8888:8081
@@ -53,7 +56,9 @@ services:
         condition: service_completed_successfully
 
   scheduler:
-    image: scheduler:develop
+    build:
+      context: ..
+      dockerfile: build/scheduler.Dockerfile
     restart: on-failure
     depends_on:
       migrations:
@@ -62,7 +67,9 @@ services:
         condition: service_healthy
 
   sender:
-    image: sender:develop
+    build:
+      context: ..
+      dockerfile: build/sender.Dockerfile
     restart: on-failure
     depends_on:
       rabbit:
