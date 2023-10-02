@@ -87,14 +87,19 @@ migrate: install-migrate-deps
 generate: 
 	go generate ./...
 
-calendar-up:
-	docker compose -f deployments/calendar-compose.yaml --project-directory deployments up
+up:
+	docker compose -f deployments/calendar-compose.yaml --project-directory deployments up -d
 
-calendar-down:
+up-build:
+	docker compose -f deployments/calendar-compose.yaml --project-directory deployments up -d --build
+
+logs:
+	docker compose -f deployments/calendar-compose.yaml logs -f
+
+down:
 	docker compose -f deployments/calendar-compose.yaml --project-directory deployments down
 
-up: build-img-all calendar-up
-
-down: calendar-down
+clean:
+	docker compose -f deployments/calendar-compose.yaml --project-directory deployments down --rmi all
 
 .PHONY: build-all run-calendar run-img-all version test lint
