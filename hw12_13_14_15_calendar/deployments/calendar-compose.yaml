@@ -1,0 +1,76 @@
+version: '3.1'
+
+services:
+
+  postgres:
+    image: postgres
+    restart: always
+    user: postgres
+    environment:
+      POSTGRES_PASSWORD: postgres
+      PGDATA: /var/lib/postgresql/data
+      POSTGRES_DB: calendar
+    ports:
+      - 5432:5432
+    healthcheck:
+      test: pg_isready
+      interval: 5s
+      timeout: 60s
+      retries: 10
+  
+  rabbit:
+    image: rabbitmq:3-management
+    restart: always
+    ports:
+      - 5672:5672
+      - 15672:15672
+    healthcheck:
+      test: rabbitmq-diagnostics -q check_running && rabbitmq-diagnostics -q check_local_alarms
+      interval: 10s
+      timeout: 120s
+      retries: 10
+
+  migrations:
+    image: gomicro/goose
+    restart: "on-failure"
+    environment:
+      DBUSER: postgres
+      DBPASS: postgres
+    command: sh -c "goose postgres \"host=postgres user=$$DBUSER password=$$DBPASS dbname=calendar sslmode=disable\" up"
+    volumes:
+      - ../migrations:/migrations
+    depends_on:
+      postgres:
+        condition: service_healthy
+  
+  calendar:
+    build:
+      context: ..
+      dockerfile: build/calendar.Dockerfile
+    restart: on-failure
+    ports:
+      - 8888:8081
+      - 8889:8082
+    depends_on:
+      migrations:
+        condition: service_completed_successfully
+
+  scheduler:
+    build:
+      context: ..
+      dockerfile: build/scheduler.Dockerfile
+    restart: on-failure
+    depends_on:
+      migrations:
+        condition: service_completed_successfully
+      rabbit:
+        condition: service_healthy
+
+  sender:
+    build:
+      context: ..
+      dockerfile: build/sender.Dockerfile
+    restart: on-failure
+    depends_on:
+      rabbit:
+        condition: service_healthy

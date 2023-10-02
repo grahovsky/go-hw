@@ -5,6 +5,7 @@ BIN_SENDER = "./bin/sender"
 DOCKER_IMG_CALENDAR = "calendar:develop"
 DOCKER_IMG_SCHEDULER = "scheduler:develop"
 DOCKER_IMG_SENDER = "sender:develop"
+DOCKER_IMG_MIGRATIONS = "migrations:develop"
 
 GIT_HASH := $(shell git log --format="%h" -n 1)
 LDFLAGS := -X main.release="develop" -X main.buildDate=$(shell date -u +%Y-%m-%dT%H:%M:%S) -X main.gitHash=$(GIT_HASH)
@@ -86,10 +87,19 @@ migrate: install-migrate-deps
 generate: 
 	go generate ./...
 
-compose-up:
-	docker compose -f deployments/third-party-compose.yaml --project-directory deployments up -d
+up:
+	docker compose -f deployments/calendar-compose.yaml --project-directory deployments up -d
 
-compose-down:
-	docker compose -f deployments/third-party-compose.yaml --project-directory deployments down
+up-build:
+	docker compose -f deployments/calendar-compose.yaml --project-directory deployments up -d --build
+
+logs:
+	docker compose -f deployments/calendar-compose.yaml logs -f
+
+down:
+	docker compose -f deployments/calendar-compose.yaml --project-directory deployments down
+
+clean:
+	docker compose -f deployments/calendar-compose.yaml --project-directory deployments down --rmi all
 
 .PHONY: build-all run-calendar run-img-all version test lint
