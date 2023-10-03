@@ -3,11 +3,11 @@ syntax = "proto3";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 
-package app;
+package event_service;
 
-option go_package = "./apppb";
+option go_package = "./eventservice;eventservice";
 
-service App
+service Calendar
 {
   rpc AddEvent(AddEventRequest) returns (AddEventResponse) {}
   rpc UpdateEvent(UpdateEventRequest) returns (UpdateEventResponse) {}

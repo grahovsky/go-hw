@@ -46,11 +46,12 @@ services:
   calendar:
     build:
       context: ..
-      dockerfile: build/calendar.Dockerfile
+      dockerfile: build/common.Dockerfile
     restart: on-failure
     ports:
       - 8888:8081
       - 8889:8082
+    command: sh -c "$${BIN_FILE_CALENDAR} --config $${CONFIG_FILE_CALENDAR}"
     depends_on:
       migrations:
         condition: service_completed_successfully
@@ -58,8 +59,9 @@ services:
   scheduler:
     build:
       context: ..
-      dockerfile: build/scheduler.Dockerfile
+      dockerfile: build/common.Dockerfile
     restart: on-failure
+    command: sh -c "$${BIN_FILE_SCHEDULER} --config $${CONFIG_FILE_SCHEDULER}"
     depends_on:
       migrations:
         condition: service_completed_successfully
@@ -69,8 +71,9 @@ services:
   sender:
     build:
       context: ..
-      dockerfile: build/sender.Dockerfile
+      dockerfile: build/common.Dockerfile
     restart: on-failure
+    command: sh -c "$${BIN_FILE_SENDER} --config $${CONFIG_FILE_SENDER}"
     depends_on:
       rabbit:
         condition: service_healthy

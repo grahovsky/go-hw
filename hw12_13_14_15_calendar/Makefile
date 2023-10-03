@@ -88,10 +88,10 @@ generate:
 	go generate ./...
 
 up:
-	docker compose -f deployments/calendar-compose.yaml --project-directory deployments up -d
-
-up-build:
 	docker compose -f deployments/calendar-compose.yaml --project-directory deployments up -d --build
+
+rebuild: 
+	docker compose -f deployments/calendar-compose.yaml --project-directory deployments build --no-cache
 
 logs:
 	docker compose -f deployments/calendar-compose.yaml logs -f

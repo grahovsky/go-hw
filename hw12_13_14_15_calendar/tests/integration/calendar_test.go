@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/api/apppb"
+	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/api/eventservice"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/config"
 	"github.com/stretchr/testify/suite"
 	"google.golang.org/grpc"
@@ -19,9 +19,9 @@ import (
 type SystemStatsSuite struct {
 	suite.Suite
 	statConn   *grpc.ClientConn
-	statClient apppb.AppClient
+	statClient eventservice.CalendarClient
 	ctx        context.Context
-	respEmpty  *apppb.GetEventsResponse
+	respEmpty  *eventservice.GetEventsResponse
 }
 
 func (s *SystemStatsSuite) SetupSuite() {
@@ -33,13 +33,13 @@ func (s *SystemStatsSuite) SetupSuite() {
 	s.Require().NoError(err)
 
 	s.statConn = statConn
-	s.statClient = apppb.NewAppClient(s.statConn)
+	s.statClient = eventservice.NewCalendarClient(s.statConn)
 
 	// s.ctx, _ = context.WithTimeout(context.Background(), 60*time.Second)
 	ctx := context.Background()
 	s.ctx = ctx
 
-	respEmpty := apppb.GetEventsResponse{}
+	respEmpty := eventservice.GetEventsResponse{}
 	s.respEmpty = &respEmpty
 }
 
