@@ -37,12 +37,12 @@ type calendarTestSuite struct {
 
 func TestMain(m *testing.M) {
 	// config.InitCalendarSettings()
+	// not working relative default config path
+	// to do - load test settings from env
 	os.Exit(m.Run())
 }
 
 func (s *calendarTestSuite) SetupSuite() {
-	// config.InitCalendarSettings()
-
 	calendarConn, err := grpc.Dial(net.JoinHostPort("calendar", "8082"),
 		grpc.WithTransportCredentials(insecure.NewCredentials()))
 	s.Require().NoError(err)
@@ -171,10 +171,10 @@ func (s *calendarTestSuite) TestUpdateEvent() {
 		s.Equal("some updated event", updated.Event.Title)
 	})
 	s.Run("update not exists", func() {
-		eventId := uuid.New().String()
+		eventID := uuid.New().String()
 		_, err := s.calendarClient.UpdateEvent(s.ctx, &eventservice.UpdateEventRequest{
 			Event: &eventservice.Event{
-				Id:               eventId,
+				Id:               eventID,
 				Title:            "some updated event",
 				DateStart:        timestamppb.New(time.Now()),
 				DateEnd:          timestamppb.New(time.Now().Add(time.Second)),
@@ -321,7 +321,7 @@ func (s *calendarTestSuite) addOneEvent() string {
 }
 
 func (s *calendarTestSuite) addFewEvents(since time.Time, d time.Duration, count int) []string {
-	eventsId := make([]string, 0)
+	eventsID := make([]string, 0)
 
 	t := since
 	for i := 0; i < count; i++ {
@@ -333,10 +333,10 @@ func (s *calendarTestSuite) addFewEvents(since time.Time, d time.Duration, count
 		})
 		s.NoError(err)
 		t = t.Add(d)
-		eventsId = append(eventsId, event.EventId)
+		eventsID = append(eventsID, event.EventId)
 	}
 
-	return eventsId
+	return eventsID
 }
 
 func contains[T comparable](collection []T, value T) bool {
