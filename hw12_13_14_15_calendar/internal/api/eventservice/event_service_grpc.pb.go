@@ -25,6 +25,7 @@ type CalendarClient interface {
 	AddEvent(ctx context.Context, in *AddEventRequest, opts ...grpc.CallOption) (*AddEventResponse, error)
 	UpdateEvent(ctx context.Context, in *UpdateEventRequest, opts ...grpc.CallOption) (*UpdateEventResponse, error)
 	DeleteEvent(ctx context.Context, in *DeleteEventRequest, opts ...grpc.CallOption) (*DeleteEventResponse, error)
+	GetEvent(ctx context.Context, in *GetEventRequest, opts ...grpc.CallOption) (*GetEventResponse, error)
 	GetEventsOfDay(ctx context.Context, in *GetEventsRequest, opts ...grpc.CallOption) (*GetEventsResponse, error)
 	GetEventsOfWeek(ctx context.Context, in *GetEventsRequest, opts ...grpc.CallOption) (*GetEventsResponse, error)
 	GetEventsOfMonth(ctx context.Context, in *GetEventsRequest, opts ...grpc.CallOption) (*GetEventsResponse, error)
@@ -65,6 +66,15 @@ func (c *calendarClient) DeleteEvent(ctx context.Context, in *DeleteEventRequest
 	return out, nil
 }
 
+func (c *calendarClient) GetEvent(ctx context.Context, in *GetEventRequest, opts ...grpc.CallOption) (*GetEventResponse, error) {
+	out := new(GetEventResponse)
+	err := c.cc.Invoke(ctx, "/event_service.Calendar/GetEvent", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *calendarClient) GetEventsOfDay(ctx context.Context, in *GetEventsRequest, opts ...grpc.CallOption) (*GetEventsResponse, error) {
 	out := new(GetEventsResponse)
 	err := c.cc.Invoke(ctx, "/event_service.Calendar/GetEventsOfDay", in, out, opts...)
@@ -99,6 +109,7 @@ type CalendarServer interface {
 	AddEvent(context.Context, *AddEventRequest) (*AddEventResponse, error)
 	UpdateEvent(context.Context, *UpdateEventRequest) (*UpdateEventResponse, error)
 	DeleteEvent(context.Context, *DeleteEventRequest) (*DeleteEventResponse, error)
+	GetEvent(context.Context, *GetEventRequest) (*GetEventResponse, error)
 	GetEventsOfDay(context.Context, *GetEventsRequest) (*GetEventsResponse, error)
 	GetEventsOfWeek(context.Context, *GetEventsRequest) (*GetEventsResponse, error)
 	GetEventsOfMonth(context.Context, *GetEventsRequest) (*GetEventsResponse, error)
@@ -117,6 +128,9 @@ func (UnimplementedCalendarServer) UpdateEvent(context.Context, *UpdateEventRequ
 }
 func (UnimplementedCalendarServer) DeleteEvent(context.Context, *DeleteEventRequest) (*DeleteEventResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteEvent not implemented")
+}
+func (UnimplementedCalendarServer) GetEvent(context.Context, *GetEventRequest) (*GetEventResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetEvent not implemented")
 }
 func (UnimplementedCalendarServer) GetEventsOfDay(context.Context, *GetEventsRequest) (*GetEventsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetEventsOfDay not implemented")
@@ -194,6 +208,24 @@ func _Calendar_DeleteEvent_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Calendar_GetEvent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetEventRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CalendarServer).GetEvent(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/event_service.Calendar/GetEvent",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CalendarServer).GetEvent(ctx, req.(*GetEventRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Calendar_GetEventsOfDay_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetEventsRequest)
 	if err := dec(in); err != nil {
@@ -266,6 +298,10 @@ var Calendar_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteEvent",
 			Handler:    _Calendar_DeleteEvent_Handler,
+		},
+		{
+			MethodName: "GetEvent",
+			Handler:    _Calendar_GetEvent_Handler,
 		},
 		{
 			MethodName: "GetEventsOfDay",

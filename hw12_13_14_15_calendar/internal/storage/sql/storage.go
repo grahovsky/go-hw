@@ -24,7 +24,7 @@ func (s *Storage) InitStorage(settings *config.Storage) error {
 }
 
 func (s *Storage) Connect(settings *config.Storage) error {
-	dsn := getDsn(settings)
+	dsn := GetDsn(settings)
 	db, err := sqlx.Connect("pgx", dsn)
 	if err != nil {
 		logger.Error(fmt.Sprintf("failed to create DB connection: %v", err))
@@ -34,7 +34,7 @@ func (s *Storage) Connect(settings *config.Storage) error {
 	return nil
 }
 
-func getDsn(settings *config.Storage) string {
+func GetDsn(settings *config.Storage) string {
 	dbURL := &url.URL{
 		Scheme:   "postgres",
 		Host:     settings.DB.Host,
@@ -117,8 +117,18 @@ func (s *Storage) UpdateEvent(ctx context.Context, event *models.Event) error {
 		date_notification=:date_notification
 	WHERE id = :id
 	`
-	if _, err := s.db.NamedExecContext(ctx, updateEventQuery, event); err != nil {
+	r, err := s.db.NamedExecContext(ctx, updateEventQuery, event)
+	if err != nil {
 		return fmt.Errorf("update event: %w", err)
+	}
+
+	updated, err := r.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("rows affected: %w", err)
+	}
+
+	if updated == 0 {
+		return fmt.Errorf("event not found")
 	}
 	return nil
 }

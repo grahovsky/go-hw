@@ -102,4 +102,7 @@ down:
 clean:
 	docker compose -f deployments/calendar-compose.yaml --project-directory deployments down --rmi all -v
 
+test-integration:
+	go clean -testcache && go test -tags integration ./tests/integration/... -count 1 -v
+
 .PHONY: build-all run-calendar run-img-all version test lint

@@ -55,8 +55,8 @@ func Event(req *eventservice.UpdateEventRequest) (*models.Event, error) {
 	}, nil
 }
 
-func EventID(req *eventservice.DeleteEventRequest) (uuid.UUID, error) {
-	eventID, err := uuid.Parse(req.EventId)
+func EventID(str string) (uuid.UUID, error) {
+	eventID, err := uuid.Parse(str)
 	if err != nil {
 		return uuid.Nil, fmt.Errorf("invalid eventID: %w", err)
 	}
@@ -80,4 +80,18 @@ func GetEventsResponse(events []models.Event) *eventservice.GetEventsResponse {
 		}
 	}
 	return &eventservice.GetEventsResponse{Events: mapped}
+}
+
+func GetEventResponse(event *models.Event) *eventservice.GetEventResponse {
+	return &eventservice.GetEventResponse{
+		Event: &eventservice.Event{
+			Id:               event.ID.String(),
+			Title:            event.Title,
+			DateStart:        timestamppb.New(event.DateStart),
+			DateEnd:          timestamppb.New(event.DateEnd),
+			Description:      event.Description,
+			UserId:           event.UserID.String(),
+			DateNotification: timestamppb.New(event.DateNotification),
+		},
+	}
 }

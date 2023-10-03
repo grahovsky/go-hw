@@ -9,13 +9,13 @@ import (
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/mapper"
 )
 
-func NewAPI(app *calendar.App) eventservice.CalendarServer {
-	return &api{app: app}
+func NewAPI(calendar *calendar.App) eventservice.CalendarServer {
+	return &api{calendar: calendar}
 }
 
 type api struct {
 	eventservice.UnimplementedCalendarServer
-	app *calendar.App
+	calendar *calendar.App
 }
 
 func (a *api) AddEvent(ctx context.Context, req *eventservice.AddEventRequest) (*eventservice.AddEventResponse, error) {
@@ -23,7 +23,7 @@ func (a *api) AddEvent(ctx context.Context, req *eventservice.AddEventRequest) (
 	if err != nil {
 		return nil, fmt.Errorf("invalid request: %w", err)
 	}
-	eventID, err := a.app.AddEvent(ctx, cmd)
+	eventID, err := a.calendar.AddEvent(ctx, cmd)
 	if err != nil {
 		return nil, fmt.Errorf("create event: %w", err)
 	}
@@ -37,7 +37,7 @@ func (a *api) UpdateEvent(ctx context.Context,
 	if err != nil {
 		return nil, fmt.Errorf("invalid request: %w", err)
 	}
-	if err = a.app.UpdateEvent(ctx, event); err != nil {
+	if err = a.calendar.UpdateEvent(ctx, event); err != nil {
 		return nil, fmt.Errorf("update event: %w", err)
 	}
 	return &eventservice.UpdateEventResponse{}, nil
@@ -46,11 +46,11 @@ func (a *api) UpdateEvent(ctx context.Context,
 func (a *api) DeleteEvent(ctx context.Context,
 	req *eventservice.DeleteEventRequest,
 ) (*eventservice.DeleteEventResponse, error) {
-	eventID, err := mapper.EventID(req)
+	eventID, err := mapper.EventID(req.EventId)
 	if err != nil {
 		return nil, fmt.Errorf("invalid request: %w", err)
 	}
-	if err = a.app.DeleteEvent(ctx, eventID); err != nil {
+	if err = a.calendar.DeleteEvent(ctx, eventID); err != nil {
 		return nil, fmt.Errorf("delete event: %w", err)
 	}
 	return &eventservice.DeleteEventResponse{}, nil
@@ -59,7 +59,7 @@ func (a *api) DeleteEvent(ctx context.Context,
 func (a *api) GetEventsOfDay(ctx context.Context,
 	req *eventservice.GetEventsRequest,
 ) (*eventservice.GetEventsResponse, error) {
-	events, err := a.app.GetEventsOfDay(ctx, mapper.BeginOfDay(req))
+	events, err := a.calendar.GetEventsOfDay(ctx, mapper.BeginOfDay(req))
 	if err != nil {
 		return nil, fmt.Errorf("get events: %w", err)
 	}
@@ -69,7 +69,7 @@ func (a *api) GetEventsOfDay(ctx context.Context,
 func (a *api) GetEventsOfWeek(ctx context.Context,
 	req *eventservice.GetEventsRequest,
 ) (*eventservice.GetEventsResponse, error) {
-	events, err := a.app.GetEventsOfWeek(ctx, mapper.BeginOfDay(req))
+	events, err := a.calendar.GetEventsOfWeek(ctx, mapper.BeginOfDay(req))
 	if err != nil {
 		return nil, fmt.Errorf("get events: %w", err)
 	}
@@ -79,9 +79,23 @@ func (a *api) GetEventsOfWeek(ctx context.Context,
 func (a *api) GetEventsOfMonth(ctx context.Context,
 	req *eventservice.GetEventsRequest,
 ) (*eventservice.GetEventsResponse, error) {
-	events, err := a.app.GetEventsOfMonth(ctx, mapper.BeginOfDay(req))
+	events, err := a.calendar.GetEventsOfMonth(ctx, mapper.BeginOfDay(req))
 	if err != nil {
 		return nil, fmt.Errorf("get events: %w", err)
 	}
 	return mapper.GetEventsResponse(events), nil
+}
+
+func (a *api) GetEvent(ctx context.Context,
+	req *eventservice.GetEventRequest,
+) (*eventservice.GetEventResponse, error) {
+	eventID, err := mapper.EventID(req.EventId)
+	if err != nil {
+		return nil, fmt.Errorf("invalid request: %w", err)
+	}
+	event, err := a.calendar.GetEvent(ctx, eventID)
+	if err != nil {
+		return nil, fmt.Errorf("get event: %w", err)
+	}
+	return mapper.GetEventResponse(event), nil
 }
