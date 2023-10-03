@@ -100,6 +100,6 @@ down:
 	docker compose -f deployments/calendar-compose.yaml --project-directory deployments down
 
 clean:
-	docker compose -f deployments/calendar-compose.yaml --project-directory deployments down --rmi all
+	docker compose -f deployments/calendar-compose.yaml --project-directory deployments down --rmi all -v
 
 .PHONY: build-all run-calendar run-img-all version test lint
