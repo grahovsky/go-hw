@@ -43,7 +43,7 @@ func TestMain(m *testing.M) {
 func (s *calendarTestSuite) SetupSuite() {
 	// config.InitCalendarSettings()
 
-	calendarConn, err := grpc.Dial(net.JoinHostPort("localhost", "8889"),
+	calendarConn, err := grpc.Dial(net.JoinHostPort("calendar", "8082"),
 		grpc.WithTransportCredentials(insecure.NewCredentials()))
 	s.Require().NoError(err)
 
@@ -53,14 +53,14 @@ func (s *calendarTestSuite) SetupSuite() {
 	// s.ctx, _ = context.WithTimeout(context.Background(), 60*time.Second)
 	s.ctx = context.Background()
 
-	dsn := "postgres://postgres:postgres@localhost:5432/calendar"
+	dsn := "postgres://postgres:postgres@postgres:5432/calendar"
 	// dsn := sqlstorage.GetDsn(&config.CalendarSettings.Storage)
 	db, err := sqlx.Connect("pgx", dsn)
 	s.Require().NoError(err)
 	s.db = db
 
 	s.rmqCfg = &config.RMQ{
-		Host:     "localhost",
+		Host:     "rabbit",
 		Port:     "5672",
 		User:     "guest",
 		Password: "guest",
@@ -348,6 +348,6 @@ func contains[T comparable](collection []T, value T) bool {
 	return false
 }
 
-func TestSystemStatusSuite(t *testing.T) {
+func TestCalendarSuite(t *testing.T) {
 	suite.Run(t, new(calendarTestSuite))
 }

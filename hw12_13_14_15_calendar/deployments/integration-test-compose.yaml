@@ -43,9 +43,6 @@ services:
       context: ..
       dockerfile: build/common.Dockerfile
     restart: on-failure
-    ports:
-      - 8888:8081
-      - 8889:8082
     command: sh -c "$${BIN_FILE_CALENDAR} --config $${CONFIG_FILE_CALENDAR}"
     depends_on:
       migrations:
@@ -63,12 +60,10 @@ services:
       rabbit:
         condition: service_healthy
 
-  # tester:
-  #   build:
-  #     context: ..
-  #     dockerfile: build/tester.Dockerfile
-  #   restart: on-failure
-  #   command: sh -c "go test.. to do"
-  #   depends_on:
-  #     scheduler:
-  #       condition: service_started
+  tester:
+    build:
+      context: ..
+      dockerfile: build/integration.Dockerfile
+    depends_on:
+      scheduler:
+        condition: service_started
