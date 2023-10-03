@@ -75,7 +75,7 @@ func (s *calendarTestSuite) TestAddGetEvent() {
 		_, err := s.calendarClient.GetEvent(s.ctx, &eventservice.GetEventRequest{EventId: "not exist"})
 		s.ErrorContains(err, "invalid eventID")
 	})
-	s.Run("simple case", func() {
+	s.Run("standard case", func() {
 		res, err := s.calendarClient.AddEvent(s.ctx, &eventservice.AddEventRequest{
 			Title:     "some testing event",
 			DateStart: timestamppb.New(time.Now()),
@@ -136,7 +136,7 @@ func (s *calendarTestSuite) TestUpdateEvent() {
 		})
 		s.ErrorContains(err, "invalid UUID")
 	})
-	s.Run("simple case", func() {
+	s.Run("standard case", func() {
 		eventID := s.addOneEvent()
 		_, err := s.calendarClient.UpdateEvent(s.ctx, &eventservice.UpdateEventRequest{
 			Event: &eventservice.Event{
@@ -167,6 +167,21 @@ func (s *calendarTestSuite) TestUpdateEvent() {
 				DateNotification: timestamppb.New(time.Now().Add(-10 * time.Second)),
 			},
 		})
+		s.ErrorContains(err, "event not found")
+	})
+}
+
+func (s *calendarTestSuite) TestDeleteEvent() {
+	eventID := s.addOneEvent()
+	s.Run("standard case", func() {
+		_, err := s.calendarClient.DeleteEvent(s.ctx, &eventservice.DeleteEventRequest{EventId: eventID})
+		s.NoError(err)
+
+		_, err = s.calendarClient.GetEvent(s.ctx, &eventservice.GetEventRequest{EventId: eventID})
+		s.ErrorContains(err, "event not found")
+	})
+	s.Run("non existent event", func() {
+		_, err := s.calendarClient.DeleteEvent(s.ctx, &eventservice.DeleteEventRequest{EventId: uuid.New().String()})
 		s.ErrorContains(err, "event not found")
 	})
 }
