@@ -18,7 +18,7 @@ COPY . ${CODE_DIR}
 ARG LDFLAGS
 RUN CGO_ENABLED=0 go build \
         -ldflags "$LDFLAGS" \
-        -o ${BIN_FILE} cmd/calendar_scheduler/*
+        -o ${BIN_FILE} cmd/scheduler/*
 
 # На выходе тонкий образ
 FROM alpine:3.9
