@@ -53,6 +53,7 @@ func (s *Scheduler) Wait() {
 func (s *Scheduler) scheduleNotification(ctx context.Context, events []models.Event) {
 	s.wg.Add(len(events))
 	for _, event := range events {
+		logger.Debug(fmt.Sprintf("event %v will to notify", event))
 		go func(event models.Event) {
 			defer s.wg.Done()
 			select {

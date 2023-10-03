@@ -14,4 +14,4 @@ rmq:
   user: "guest"
   password: "guest"
   queue: "e_notifications"
-schedule: "10s"
+schedule: "5s"

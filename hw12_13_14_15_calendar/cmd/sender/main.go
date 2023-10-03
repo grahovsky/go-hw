@@ -21,7 +21,7 @@ func main() {
 
 	notifier := notify.NewLogNotifier()
 
-	queue, err := rmq.NewQueue(&config.SenderSettings.Rmq, "application/json")
+	queue, err := rmq.NewQueue(&config.SenderSettings.Rmq)
 	if err != nil {
 		logger.Error(fmt.Sprintf("failed to create RMQ queue: %v", err))
 		os.Exit(1)

@@ -4,14 +4,20 @@ package integration_test
 
 import (
 	"context"
+	"encoding/json"
 	"math/rand"
 	"net"
 	"os"
+	"sort"
+	"sync"
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/api/eventservice"
+	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/config"
+	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/models"
+	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/rmq"
 	_ "github.com/jackc/pgx/stdlib" // justifying
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/suite"
@@ -26,6 +32,7 @@ type calendarTestSuite struct {
 	calendarClient eventservice.CalendarClient
 	ctx            context.Context
 	db             *sqlx.DB
+	rmqCfg         *config.RMQ
 }
 
 func TestMain(m *testing.M) {
@@ -51,6 +58,14 @@ func (s *calendarTestSuite) SetupSuite() {
 	db, err := sqlx.Connect("pgx", dsn)
 	s.Require().NoError(err)
 	s.db = db
+
+	s.rmqCfg = &config.RMQ{
+		Host:     "localhost",
+		Port:     "5672",
+		User:     "guest",
+		Password: "guest",
+		Queue:    "e_notifications",
+	}
 }
 
 func (s *calendarTestSuite) SetupTest() {
@@ -186,6 +201,114 @@ func (s *calendarTestSuite) TestDeleteEvent() {
 	})
 }
 
+func (s *calendarTestSuite) TestSendNotifications() {
+	queue, err := rmq.NewQueue(s.rmqCfg)
+	s.NoError(err)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	ch, err := queue.ConsumeChannel(ctx, "calendar_sender_test")
+	s.NoError(err)
+
+	count := 5
+	since := time.Now().Add(5 * time.Second)
+	events := s.addFewEvents(since, 500*time.Millisecond, count)
+	notifications := make([]models.Notification, 0, count)
+
+	var wg sync.WaitGroup
+	wg.Add(2)
+	go func() {
+		defer cancel()
+		defer wg.Done()
+		s.Eventually(func() bool {
+			return len(notifications) == count
+		}, time.Minute, time.Millisecond)
+	}()
+	go func() {
+		defer wg.Done()
+		for msg := range ch {
+			var notification models.Notification
+			s.NoError(json.Unmarshal(msg, &notification))
+
+			if contains(events, notification.EventID.String()) {
+				notifications = append(notifications, notification)
+			}
+		}
+	}()
+	<-ctx.Done()
+	wg.Wait()
+
+	s.Equal(len(events), len(notifications))
+	sort.Strings(events)
+	sort.Slice(notifications, func(i, j int) bool {
+		return notifications[i].EventID.String() < notifications[j].EventID.String()
+	})
+	for i := 0; i < len(events); i++ {
+		s.Equal(events[i], notifications[i].EventID.String())
+	}
+}
+
+func (s *calendarTestSuite) TestGetEventsOfDay() {
+	today := time.Now().Truncate(24 * time.Hour)
+	yesterday := today.AddDate(0, 0, -1)
+	tomorrow := today.AddDate(0, 0, 1)
+	s.addFewEvents(yesterday, 4*time.Hour, 18)
+
+	s.Run("in period day", func() {
+		for _, date := range []time.Time{yesterday, today, tomorrow} {
+			res, err := s.calendarClient.GetEventsOfDay(s.ctx, &eventservice.GetEventsRequest{Since: timestamppb.New(date)})
+			s.NoError(err)
+			s.NotEmpty(res.Events)
+		}
+	})
+	s.Run("no in period day", func() {
+		for _, date := range []time.Time{yesterday.AddDate(0, 0, -5), tomorrow.AddDate(1, 0, 5)} {
+			res, err := s.calendarClient.GetEventsOfDay(s.ctx, &eventservice.GetEventsRequest{Since: timestamppb.New(date)})
+			s.NoError(err)
+			s.Empty(res.Events)
+		}
+	})
+}
+
+func (s *calendarTestSuite) TestGetEventsOfWeek() {
+	s.addFewEvents(time.Now(), 24*time.Hour, 10)
+
+	s.Run("in period week", func() {
+		for _, date := range []time.Time{time.Now(), time.Now().AddDate(0, 0, 7)} {
+			res, err := s.calendarClient.GetEventsOfWeek(s.ctx, &eventservice.GetEventsRequest{Since: timestamppb.New(date)})
+			s.NoError(err)
+			s.NotEmpty(res.Events)
+		}
+	})
+	s.Run("no in period week", func() {
+		for _, date := range []time.Time{time.Now().AddDate(0, 0, -8), time.Now().AddDate(0, 0, 15)} {
+			res, err := s.calendarClient.GetEventsOfWeek(s.ctx, &eventservice.GetEventsRequest{Since: timestamppb.New(date)})
+			s.NoError(err)
+			s.Empty(res.Events)
+		}
+	})
+}
+
+func (s *calendarTestSuite) TestGetEventsOfMonth() {
+	s.addFewEvents(time.Now(), 24*time.Hour, 35)
+
+	s.Run("in period month", func() {
+		for _, date := range []time.Time{time.Now(), time.Now().AddDate(0, 1, 0)} {
+			res, err := s.calendarClient.GetEventsOfMonth(s.ctx, &eventservice.GetEventsRequest{Since: timestamppb.New(date)})
+			s.NoError(err)
+			s.NotEmpty(res.Events)
+		}
+	})
+	s.Run("no in period month", func() {
+		for _, date := range []time.Time{time.Now().AddDate(0, -1, 0), time.Now().AddDate(0, 2, 0)} {
+			res, err := s.calendarClient.GetEventsOfMonth(s.ctx, &eventservice.GetEventsRequest{Since: timestamppb.New(date)})
+			s.NoError(err)
+			s.Empty(res.Events)
+		}
+	})
+}
+
 func (s *calendarTestSuite) addOneEvent() string {
 	event, err := s.calendarClient.AddEvent(s.ctx, &eventservice.AddEventRequest{
 		DateStart:        timestamppb.New(time.Now()),
@@ -203,10 +326,10 @@ func (s *calendarTestSuite) addFewEvents(since time.Time, d time.Duration, count
 	t := since
 	for i := 0; i < count; i++ {
 		event, err := s.calendarClient.AddEvent(s.ctx, &eventservice.AddEventRequest{
-			DateStart:        timestamppb.New(time.Now()),
-			DateEnd:          timestamppb.New(time.Now().Add(time.Second)),
+			DateStart:        timestamppb.New(t),
+			DateEnd:          timestamppb.New(t.Add(d)),
 			UserId:           uuid.New().String(),
-			DateNotification: timestamppb.New(time.Now().Add(-10 * time.Second)),
+			DateNotification: timestamppb.New(t),
 		})
 		s.NoError(err)
 		t = t.Add(d)
@@ -214,6 +337,15 @@ func (s *calendarTestSuite) addFewEvents(since time.Time, d time.Duration, count
 	}
 
 	return eventsId
+}
+
+func contains[T comparable](collection []T, value T) bool {
+	for _, v := range collection {
+		if value == v {
+			return true
+		}
+	}
+	return false
 }
 
 func TestSystemStatusSuite(t *testing.T) {
