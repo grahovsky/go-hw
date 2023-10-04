@@ -1,4 +1,4 @@
-package sqlmodels
+package sqlstorage
 
 import (
 	"context"
@@ -19,12 +19,12 @@ type Storage struct { // TODO
 	db *sqlx.DB
 }
 
-func (s *Storage) InitStorage() {
-	s.Connect()
+func (s *Storage) InitStorage(settings *config.Storage) error {
+	return s.Connect(settings)
 }
 
-func (s *Storage) Connect() error {
-	dsn := getDsn()
+func (s *Storage) Connect(settings *config.Storage) error {
+	dsn := getDsn(settings)
 	db, err := sqlx.Connect("pgx", dsn)
 	if err != nil {
 		logger.Error(fmt.Sprintf("failed to create DB connection: %v", err))
@@ -34,12 +34,12 @@ func (s *Storage) Connect() error {
 	return nil
 }
 
-func getDsn() string {
+func getDsn(settings *config.Storage) string {
 	dbURL := &url.URL{
 		Scheme:   "postgres",
-		Host:     config.Settings.DB.Host,
-		User:     url.UserPassword(config.Settings.DB.User, config.Settings.DB.Password),
-		Path:     config.Settings.DB.Name,
+		Host:     settings.DB.Host,
+		User:     url.UserPassword(settings.DB.User, settings.DB.Password),
+		Path:     settings.DB.Name,
 		RawQuery: "sslmode=disable",
 	}
 	logger.Debug(fmt.Sprintf("database: %v", dbURL.String()))
@@ -55,6 +55,7 @@ func (s *Storage) AddEvent(ctx context.Context, event *models.Event) error {
 	INSERT INTO events 
 	VALUES (:id, :title, :date_start, :date_end, :user_id, :description, :date_notification)
 	`
+
 	if _, err := s.db.NamedExecContext(ctx, insertEventQuery, event); err != nil {
 		logger.Debug(fmt.Sprintf("insert event: %v", err))
 		return fmt.Errorf("insert event: %w", err)
@@ -77,8 +78,6 @@ func (s *Storage) GetEvent(ctx context.Context, id uuid.UUID) (*models.Event, er
 }
 
 func (s *Storage) GetEventsForPeriod(ctx context.Context, from, to time.Time) ([]models.Event, error) {
-	fmt.Println(from, to)
-
 	getEventsForPeriodQuery := `
 	SELECT id, title, date_start, date_end, user_id, coalesce(description, '') as description, date_notification 
 	FROM events 
@@ -130,4 +129,27 @@ func (s *Storage) DeleteEvent(ctx context.Context, id uuid.UUID) error {
 		return fmt.Errorf("delete event: %w", err)
 	}
 	return nil
+}
+
+func (s *Storage) DeleteEventsBefore(ctx context.Context, before time.Time) (int64, error) {
+	deletePastEventsQuery := `DELETE FROM events WHERE date_end < $1 IS TRUE RETURNING id`
+	r, err := s.db.ExecContext(ctx, deletePastEventsQuery, before)
+	if err != nil {
+		return 0, fmt.Errorf("delete old event: %w", err)
+	}
+	return r.RowsAffected()
+}
+
+func (s *Storage) GetEventsToNotify(ctx context.Context, from, to time.Time) ([]models.Event, error) {
+	getEventToNotifyQuery := `
+	SELECT id, title, date_start, date_end, coalesce(description, '') as description, user_id, date_notification 
+	FROM events 
+	WHERE date_notification >= $1 AND date_notification < $2
+	ORDER BY date_start
+	`
+	events := make([]models.Event, 0)
+	if err := s.db.SelectContext(ctx, &events, getEventToNotifyQuery, from, to); err != nil {
+		return nil, fmt.Errorf("get events to notify: %w", err)
+	}
+	return events, nil
 }

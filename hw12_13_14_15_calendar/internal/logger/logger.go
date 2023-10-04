@@ -52,8 +52,12 @@ func initCore() {
 		zapLevel = zap.ErrorLevel
 	}
 
+	encoderCfg := zap.NewProductionEncoderConfig()
+	encoderCfg.TimeKey = "timestamp"
+	encoderCfg.EncodeTime = zapcore.ISO8601TimeEncoder
+
 	core := zapcore.NewCore(
-		zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig()),
+		zapcore.NewJSONEncoder(encoderCfg),
 		zapcore.AddSync(myLog.writer),
 		zap.NewAtomicLevelAt(zapLevel))
 

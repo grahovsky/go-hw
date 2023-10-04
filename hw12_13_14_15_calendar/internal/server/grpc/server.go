@@ -6,15 +6,17 @@ import (
 
 	pb "github.com/grahovsky/go-hw/hw12_13_14_15_calendar/api/apppb"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/api"
-	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/app"
+	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/calendar"
+	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/config"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/logger"
 	"google.golang.org/grpc"
 )
 
-func NewServer(app *app.App, addr string) *Server {
+func NewServer(app *calendar.App, srvCf *config.Server) *Server {
 	srv := grpc.NewServer(grpc.UnaryInterceptor(serverUnaryInterceptor))
 	pb.RegisterAppServer(srv, api.NewAPI(app))
 
+	addr := net.JoinHostPort(srvCf.Host, srvCf.GRPCPort)
 	return &Server{
 		addr: addr,
 		srv:  srv,

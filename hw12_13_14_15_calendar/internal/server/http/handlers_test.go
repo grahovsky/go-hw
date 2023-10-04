@@ -2,7 +2,6 @@ package internalhttp
 
 import (
 	"context"
-	"fmt"
 	"testing"
 	"time"
 
@@ -58,7 +57,7 @@ func TestAppMockGetEvent(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.title, func(t *testing.T) {
 			appMock := tt.GetAppMock(t)
-			server := NewServer(appMock, fmt.Sprintf("%v:%v", config.Settings.Server.Host, config.Settings.Server.HTTPPort))
+			server := NewServer(appMock, &config.Server{Host: "0.0.0.0", HTTPPort: "8081"})
 
 			res, err := server.app.GetEvent(ctx, eventID)
 			if tt.err != nil {

@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/config"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/models"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -80,7 +81,7 @@ func (s *MemoryStorageTestSuite) TestGetEventsForPeriod() {
 			s.Equal(s.events, events)
 		})
 		s.Run("1st and 2nd events", func() {
-			events, err := s.storage.GetEventsForPeriod(ctx, s.start.Add(time.Minute), s.start.Add(100*time.Second))
+			events, err := s.storage.GetEventsForPeriod(ctx, s.start, s.start.Add(120*time.Second))
 			s.NoError(err)
 			s.Equal(s.events[:2], events)
 		})
@@ -207,7 +208,7 @@ func TestStorage(t *testing.T) {
 func TestStorage_Concurrency(t *testing.T) {
 	ctx := context.Background()
 	s := &Storage{}
-	s.InitStorage()
+	s.InitStorage(&config.Storage{})
 	count := 100
 
 	var wg sync.WaitGroup

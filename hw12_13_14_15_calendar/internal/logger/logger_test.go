@@ -126,8 +126,6 @@ func TestLogger(t *testing.T) {
 				require.Failf(t, "undefined message level: %s", tc.messageLevel)
 			}
 
-			fmt.Println(w.String(), msg)
-
 			if tc.shouldPrint {
 				require.Contains(t, w.String(), msg)
 			} else {

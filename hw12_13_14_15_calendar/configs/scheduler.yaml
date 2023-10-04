@@ -1,0 +1,17 @@
+log:
+  level: "DEBUG"
+storage:
+  type: "sql"
+  #type: "in-memory"
+  db:
+    name: "calendar"
+    host: "postgres"
+    user: "postgres"
+    password: "postgres"
+rmq:
+  host: "rabbit"
+  port: "5672"
+  user: "guest"
+  password: "guest"
+  queue: "e_notifications"
+schedule: "10s"
