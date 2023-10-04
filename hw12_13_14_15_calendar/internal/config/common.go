@@ -18,4 +18,5 @@ type RMQ struct {
 	User     string `mapstructure:"user" env:"RMQ_USER"`
 	Password string `mapstructure:"password" env:"RMQ_PASSWORD"`
 	Queue    string `mapstructure:"queue" env:"RMQ_QUEUE"`
+	SendTo   string `mapstructure:"sendTo" env:"RMQ_SEND_TO"`
 }

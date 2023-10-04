@@ -90,11 +90,14 @@ generate:
 up:
 	docker compose -f deployments/calendar-compose.yaml --project-directory deployments up -d --build
 
+up-third:
+	docker compose -f deployments/third-party-compose.yaml --project-directory deployments up -d
+
 rebuild: 
 	docker compose -f deployments/calendar-compose.yaml --project-directory deployments build --no-cache
 
 logs:
-	docker compose -f deployments/calendar-compose.yaml logs -f
+	docker compose -f deployments/calendar-compose.yaml logs -f calendar scheduler sender
 
 down:
 	docker compose -f deployments/calendar-compose.yaml --project-directory deployments down

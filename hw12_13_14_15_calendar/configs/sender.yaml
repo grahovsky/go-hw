@@ -1,8 +1,9 @@
 log:
-  level: "INFO"
+  level: "DEBUG"
 rmq:
   host: "rabbit"
   port: "5672"
   user: "guest"
   password: "guest"
   queue: "e_notifications"
+  sendTo: "notifications_out"
