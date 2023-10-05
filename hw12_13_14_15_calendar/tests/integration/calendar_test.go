@@ -64,7 +64,7 @@ func (s *calendarTestSuite) SetupSuite() {
 		Port:     "5672",
 		User:     "guest",
 		Password: "guest",
-		Queue:    "e_notifications",
+		Queue:    "notifications_out",
 	}
 }
 

@@ -60,10 +60,20 @@ services:
       rabbit:
         condition: service_healthy
 
+  sender:
+    build:
+      context: ..
+      dockerfile: build/common.Dockerfile
+    restart: on-failure
+    command: sh -c "$${BIN_FILE_SENDER} --config $${CONFIG_FILE_SENDER}"
+    depends_on:
+      rabbit:
+        condition: service_healthy
+
   tester:
     build:
       context: ..
       dockerfile: build/integration.Dockerfile
     depends_on:
-      scheduler:
+      sender:
         condition: service_started
