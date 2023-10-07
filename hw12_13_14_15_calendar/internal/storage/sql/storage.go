@@ -24,7 +24,7 @@ func (s *Storage) InitStorage(settings *config.Storage) error {
 }
 
 func (s *Storage) Connect(settings *config.Storage) error {
-	dsn := getDsn(settings)
+	dsn := GetDsn(settings)
 	db, err := sqlx.Connect("pgx", dsn)
 	if err != nil {
 		logger.Error(fmt.Sprintf("failed to create DB connection: %v", err))
@@ -34,7 +34,7 @@ func (s *Storage) Connect(settings *config.Storage) error {
 	return nil
 }
 
-func getDsn(settings *config.Storage) string {
+func GetDsn(settings *config.Storage) string {
 	dbURL := &url.URL{
 		Scheme:   "postgres",
 		Host:     settings.DB.Host,
@@ -72,7 +72,7 @@ func (s *Storage) GetEvent(ctx context.Context, id uuid.UUID) (*models.Event, er
 	`
 	var event models.Event
 	if err := s.db.GetContext(ctx, &event, getEventQuery, id); err != nil {
-		return nil, fmt.Errorf("get event: %w", err)
+		return nil, fmt.Errorf("event not found, %w", err)
 	}
 	return &event, nil
 }
@@ -117,16 +117,36 @@ func (s *Storage) UpdateEvent(ctx context.Context, event *models.Event) error {
 		date_notification=:date_notification
 	WHERE id = :id
 	`
-	if _, err := s.db.NamedExecContext(ctx, updateEventQuery, event); err != nil {
+	r, err := s.db.NamedExecContext(ctx, updateEventQuery, event)
+	if err != nil {
 		return fmt.Errorf("update event: %w", err)
+	}
+
+	updated, err := r.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("rows affected: %w", err)
+	}
+
+	if updated == 0 {
+		return fmt.Errorf("event not found")
 	}
 	return nil
 }
 
 func (s *Storage) DeleteEvent(ctx context.Context, id uuid.UUID) error {
 	deleteEventQuery := `DELETE FROM events WHERE id = $1`
-	if _, err := s.db.ExecContext(ctx, deleteEventQuery, id); err != nil {
+	r, err := s.db.ExecContext(ctx, deleteEventQuery, id)
+	if err != nil {
 		return fmt.Errorf("delete event: %w", err)
+	}
+
+	deleted, err := r.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("rows affected: %w", err)
+	}
+
+	if deleted == 0 {
+		return fmt.Errorf("event not found")
 	}
 	return nil
 }

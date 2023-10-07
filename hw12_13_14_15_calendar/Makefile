@@ -17,10 +17,10 @@ build-calendar:
 	go build -v -o $(BIN_CALENDAR) -ldflags "$(LDFLAGS)" ./cmd/calendar
 
 build-scheduler:
-	go build -v -o $(BIN_SCHEDULER) -ldflags "$(LDFLAGS)" ./cmd/calendar_scheduler
+	go build -v -o $(BIN_SCHEDULER) -ldflags "$(LDFLAGS)" ./cmd/scheduler
 
 build-sender:
-	go build -v -o $(BIN_SENDER) -ldflags "$(LDFLAGS)" ./cmd/calendar_sender
+	go build -v -o $(BIN_SENDER) -ldflags "$(LDFLAGS)" ./cmd/sender
 
 build-all: build-calendar build-scheduler build-sender
 
@@ -88,18 +88,26 @@ generate:
 	go generate ./...
 
 up:
-	docker compose -f deployments/calendar-compose.yaml --project-directory deployments up -d
-
-up-build:
 	docker compose -f deployments/calendar-compose.yaml --project-directory deployments up -d --build
 
+up-third:
+	docker compose -f deployments/third-party-compose.yaml --project-directory deployments up -d
+
+rebuild: 
+	docker compose -f deployments/calendar-compose.yaml --project-directory deployments build --no-cache
+
 logs:
-	docker compose -f deployments/calendar-compose.yaml logs -f
+	docker compose -f deployments/calendar-compose.yaml logs -f calendar scheduler sender
 
 down:
 	docker compose -f deployments/calendar-compose.yaml --project-directory deployments down
 
 clean:
-	docker compose -f deployments/calendar-compose.yaml --project-directory deployments down --rmi all
+	docker compose -f deployments/calendar-compose.yaml --project-directory deployments down --rmi all -v
+	docker compose -f deployments/integration-test-compose.yaml --project-directory deployments down --rmi all -v
+
+integration-test:
+	docker compose -f deployments/integration-test-compose.yaml up --build --attach tester --exit-code-from tester
+	docker compose -f deployments/integration-test-compose.yaml down
 
 .PHONY: build-all run-calendar run-img-all version test lint

@@ -10,26 +10,15 @@ services:
       POSTGRES_PASSWORD: postgres
       PGDATA: /var/lib/postgresql/data
       POSTGRES_DB: calendar
-    ports:
-      - 5432:5432
     healthcheck:
       test: pg_isready
       interval: 5s
       timeout: 60s
       retries: 10
 
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - 8080:8080
-
   rabbit:
     image: rabbitmq:3-management
     restart: always
-    ports:
-      - 5672:5672
-      - 15672:15672
     healthcheck:
       test: rabbitmq-diagnostics -q check_running && rabbitmq-diagnostics -q check_local_alarms
       interval: 10s
@@ -54,9 +43,6 @@ services:
       context: ..
       dockerfile: build/common.Dockerfile
     restart: on-failure
-    ports:
-      - 8888:8081
-      - 8889:8082
     command: sh -c "$${BIN_FILE_CALENDAR} --config $${CONFIG_FILE_CALENDAR}"
     depends_on:
       migrations:
@@ -83,3 +69,11 @@ services:
     depends_on:
       rabbit:
         condition: service_healthy
+
+  tester:
+    build:
+      context: ..
+      dockerfile: build/integration.Dockerfile
+    depends_on:
+      sender:
+        condition: service_started

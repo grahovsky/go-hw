@@ -2,17 +2,22 @@ version: '3.1'
 
 services:
 
-  db:
+  postgres:
     image: postgres
     restart: always
     environment:
       POSTGRES_PASSWORD: postgres
       PGDATA: /var/lib/postgresql/data
       POSTGRES_DB: calendar
-    volumes:
-      - ./pg_data:/var/lib/postgresql/data
+    # volumes:
+    #   - ./pg_data:/var/lib/postgresql/data
     ports:
       - 5432:5432
+    healthcheck:
+      test: pg_isready
+      interval: 5s
+      timeout: 60s
+      retries: 10
 
   adminer:
     image: adminer
@@ -23,8 +28,21 @@ services:
   rabbit:
     image: rabbitmq:3-management
     restart: always
-    volumes:
-      - ./rmq_data:/var/lib/rabbitmq
+    # volumes:
+    #   - ./rmq_data:/var/lib/rabbitmq
     ports:
       - 5672:5672
       - 15672:15672
+  
+  migrations:
+    image: gomicro/goose
+    restart: "on-failure"
+    environment:
+      DBUSER: postgres
+      DBPASS: postgres
+    command: sh -c "goose postgres \"host=postgres user=$$DBUSER password=$$DBPASS dbname=calendar sslmode=disable\" up"
+    volumes:
+      - ../migrations:/migrations
+    depends_on:
+      postgres:
+        condition: service_healthy

@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/config"
+	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/logger"
 	"github.com/grahovsky/go-hw/hw12_13_14_15_calendar/internal/models"
 )
 
@@ -18,7 +19,8 @@ func (n *Notifier) Notify(ctx context.Context, notification *models.Notification
 	if err != nil {
 		return fmt.Errorf("marshal to json: %w", err)
 	}
-	return n.queue.Push(ctx, msg)
+	logger.Debug(fmt.Sprintf("notify push to %s %s", n.queue.queue.Name, n.queue.contentType))
+	return n.queue.Push(ctx, msg, "application/json")
 }
 
 func (n *Notifier) Close() error {
@@ -26,7 +28,7 @@ func (n *Notifier) Close() error {
 }
 
 func NewNotifier(rmqCf *config.RMQ) (*Notifier, error) {
-	queue, err := NewQueue(rmqCf, "application/json")
+	queue, err := NewQueue(rmqCf)
 	if err != nil {
 		return nil, fmt.Errorf("create queue: %w", err)
 	}

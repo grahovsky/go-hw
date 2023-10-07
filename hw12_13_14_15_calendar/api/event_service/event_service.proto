@@ -3,15 +3,16 @@ syntax = "proto3";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 
-package app;
+package event_service;
 
-option go_package = "./apppb";
+option go_package = "./eventservice;eventservice";
 
-service App
+service Calendar
 {
   rpc AddEvent(AddEventRequest) returns (AddEventResponse) {}
   rpc UpdateEvent(UpdateEventRequest) returns (UpdateEventResponse) {}
   rpc DeleteEvent(DeleteEventRequest) returns (DeleteEventResponse) {}
+  rpc GetEvent(GetEventRequest) returns (GetEventResponse) {}
   rpc GetEventsOfDay(GetEventsRequest) returns (GetEventsResponse) {}
   rpc GetEventsOfWeek(GetEventsRequest) returns (GetEventsResponse) {}
   rpc GetEventsOfMonth(GetEventsRequest) returns (GetEventsResponse) {}
@@ -56,8 +57,16 @@ message DeleteEventResponse {
   google.protobuf.Empty _ = 1;
 }
 
+message GetEventRequest {
+  string event_id = 1;
+}
+
 message GetEventsRequest {
   google.protobuf.Timestamp since = 1;
+}
+
+message GetEventResponse {
+  Event event = 1;
 }
 
 message GetEventsResponse {

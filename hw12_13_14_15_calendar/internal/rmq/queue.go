@@ -24,7 +24,7 @@ func (q *Queue) Close() error {
 	return q.conn.Close()
 }
 
-func (q *Queue) Push(ctx context.Context, msg []byte) error {
+func (q *Queue) Push(ctx context.Context, msg []byte, contentType string) error {
 	return q.channel.PublishWithContext(
 		ctx,
 		"",           // exchange
@@ -33,7 +33,7 @@ func (q *Queue) Push(ctx context.Context, msg []byte) error {
 		false,
 		amqp.Publishing{
 			DeliveryMode: amqp.Transient,
-			ContentType:  q.contentType,
+			ContentType:  contentType,
 			Body:         msg,
 			Priority:     0,
 		})
@@ -63,7 +63,7 @@ func (q *Queue) ConsumeChannel(ctx context.Context, consumer string) (<-chan []b
 	return ch, err
 }
 
-func NewQueue(rmqCf *config.RMQ, contentType string) (*Queue, error) {
+func NewQueue(rmqCf *config.RMQ) (*Queue, error) {
 	conn, err := amqp.Dial(amqURI(rmqCf))
 	if err != nil {
 		return nil, fmt.Errorf("connect to rmq %w", err)
@@ -78,12 +78,12 @@ func NewQueue(rmqCf *config.RMQ, contentType string) (*Queue, error) {
 	if err != nil {
 		return nil, fmt.Errorf("queue declare: %w", err)
 	}
+	logger.Debug(fmt.Sprintf("queue declare %s", rmqCf.Queue))
 
 	return &Queue{
-		conn:        conn,
-		channel:     channel,
-		queue:       &queue,
-		contentType: contentType,
+		conn:    conn,
+		channel: channel,
+		queue:   &queue,
 	}, nil
 }
 
